@@ -382,6 +382,8 @@ $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove
 
 /* ---------- ขาย ---------- */
 let cat='ทั้งหมด', channel='store', cart=[], outMode=false;
+// เก็บตะกร้าไว้ในเครื่อง แอปหลุดเปิดใหม่ของยังอยู่
+try{const k=JSON.parse(localStorage.getItem('milktea_cart')||'null');if(k&&Array.isArray(k.cart)){cart=k.cart;channel=k.channel||'store'}}catch(e){}
 const priceOf=(m,ch)=>ch!=='store'&&m.ap&&m.ap[ch]!==''&&m.ap[ch]!=null?+m.ap[ch]:+m.price;
 function renderMenu(){
   $('#shopTitle').textContent=S.settings.shopName;
@@ -454,6 +456,7 @@ $('#miAdd').onclick=()=>{
 const lineDesc=l=>[l.size&&S.settings.sizes.length>1?l.size.name:'',`หวาน ${l.sweet}%`,...l.tops.map(t=>t.name),l.note].filter(Boolean).join(' · ');
 const cartTotal=()=>cart.reduce((a,l)=>a+unitOf(l)*l.qty,0);
 function renderCart(){
+  try{localStorage.setItem('milktea_cart',JSON.stringify({cart,channel}))}catch(e){}
   $('#lines').innerHTML=cart.length?cart.map((l,i)=>`<div class="line"><div class="t"><b>${esc(l.name)}</b><small>${esc(lineDesc(l))}</small><small>${baht(unitOf(l))} × ${l.qty} = <b>${baht(unitOf(l)*l.qty)}</b></small></div>
     <div class="qty"><button data-i="${i}" data-d="-1">−</button><b>${l.qty}</b><button data-i="${i}" data-d="1">+</button></div></div>`).join(''):'<div class="empty">แตะเมนูเพื่อเพิ่ม</div>';
   $$('#lines .qty button').forEach(b=>b.onclick=()=>{const l=cart[b.dataset.i];l.qty+=+b.dataset.d;if(l.qty<1)cart.splice(b.dataset.i,1);renderCart()});
@@ -902,5 +905,10 @@ renderChan();renderMenu();renderCart();renderShiftBtn();
  if(lb?days>3:S.orders.length)setTimeout(()=>toast(lb?`ไม่ได้สำรองข้อมูลมา ${Math.floor(days)} วัน กด ตั้งค่า > สำรองข้อมูล`:'ยังไม่เคยสำรองข้อมูล กด ตั้งค่า > สำรองข้อมูล'),800)}
 </script>
 <script>if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js')</script>
+<script>
+// ไม่ให้จอดับระหว่างเปิดร้าน (จอดับนานๆ Android จะปิดแอปทิ้ง)
+let wl=null;const keepAwake=async()=>{try{if('wakeLock'in navigator&&document.visibilityState==='visible'&&!wl){wl=await navigator.wakeLock.request('screen');wl.onrelease=()=>wl=null}}catch(e){}};
+keepAwake();document.addEventListener('visibilitychange',keepAwake);document.addEventListener('pointerdown',keepAwake);
+</script>
 </body>
 </html>
