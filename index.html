@@ -19,6 +19,12 @@
   --r:18px; --shadow:0 6px 24px rgba(60,35,15,.08); --rail:96px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* แท็บเล็ต: กดค้างไม่ให้ไปเลือกตัวหนังสือ/เด้งเมนูรูป ปุ่มจะได้ติดทุกครั้ง */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+button{touch-action:manipulation}
+button img{pointer-events:none;-webkit-user-drag:none}
+button:active{opacity:.7}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font-family:"Prompt","Sarabun",-apple-system,system-ui,sans-serif;font-size:15px;padding-left:var(--rail)}
 button{font:inherit;color:inherit;cursor:pointer;border:0;border-radius:12px;background:none}
@@ -49,7 +55,7 @@ nav [data-p=settings]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .cats button{flex-shrink:0;background:#fff;padding:9px 16px;white-space:nowrap;border-radius:999px;box-shadow:var(--shadow);font-size:14px;color:var(--muted)}
 .cats button.on{background:var(--brand);color:#fff;font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
-.item{position:relative;background:var(--card);border-radius:var(--r);overflow:hidden;text-align:left;display:grid;grid-template-columns:1fr auto;align-items:end;box-shadow:var(--shadow);transition:transform .12s}
+.item{position:relative;background:var(--card);border-radius:var(--r);overflow:hidden;text-align:left;display:grid;grid-template-columns:1fr auto;align-items:end;box-shadow:var(--shadow)}
 .item img,.item em{grid-column:1/-1;display:block;width:100%;aspect-ratio:1/1;height:auto;object-fit:cover;background:linear-gradient(160deg,#fbf6f0,#efe4d7)}
 .item em{font-style:normal;font-size:34px;font-weight:700;color:#c9b6a3;display:grid;place-items:center}
 .item b{font-size:14px;font-weight:500;line-height:1.25;padding:10px 4px 12px 12px;min-height:3.3em;display:flex;align-items:center}
@@ -76,7 +82,7 @@ nav [data-p=settings]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .line .t{flex:1;min-width:0;font-weight:500}
 .line .t small{display:block;color:var(--brand2);font-size:12.5px;font-weight:400;margin-top:2px}
 .qty{display:flex;align-items:center;gap:4px;background:var(--soft);border-radius:10px}
-.qty button{width:30px;height:30px;color:var(--brand);font-weight:700;font-size:17px}
+.qty button{width:42px;height:42px;color:var(--brand);font-weight:700;font-size:17px}
 .empty{color:var(--muted);text-align:center;padding:60px 10px}
 .foot{padding:14px 20px 18px;border-top:1px solid var(--line);background:#fffcf9}
 .sum{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;margin-bottom:12px}
@@ -89,7 +95,7 @@ nav [data-p=settings]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .danger{background:#fbe9e7;color:var(--danger);padding:10px 14px;border-radius:12px}
 
 /* หน้าต่าง */
-.modal{position:fixed;inset:0;background:rgba(30,18,10,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:12px;backdrop-filter:blur(3px)}
+.modal{position:fixed;inset:0;background:rgba(30,18,10,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:12px}
 .modal.on{display:flex}
 .sheet{background:#fff;border-radius:26px;width:min(560px,100%);max-height:94vh;overflow:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .sheet h2{margin:0 0 4px;font-size:22px}
@@ -330,7 +336,7 @@ function sample(){
   const m=(name,cat,price)=>({id:uid(),name,cat,price,ap:{}});
   const g=(cat,list)=>list.map(([n,p])=>m(n,cat,p));
   return {
-    settings:{shopName:'Nani Cha',promptpay:'',gpRates:{lineman:30,grab:30,shopee:30,robinhood:30},footer:'ขอบคุณค่ะ',autoPrint:1,
+    settings:{shopName:'Nani Cha',promptpay:'',gpRates:{lineman:30,grab:30,shopee:30,robinhood:30},footer:'ขอบคุณที่มาอุดหนุนนะคะ',autoPrint:1,
       sizes:[{name:'ปกติ',add:0},{name:'เพิ่มไซส์',add:5}],
       sweet:[0,25,50,75,100],
       toppings:[{id:uid(),name:'ไข่มุก',price:0},{id:uid(),name:'ไข่มุกลาวา',price:10},{id:uid(),name:'บุก',price:10},{id:uid(),name:'ฟรุตสลัด',price:5},{id:uid(),name:'เยลลี่แอปเปิ้ล',price:5},{id:uid(),name:'บราวนี่ cube',price:15}]},
@@ -356,6 +362,7 @@ else if(S.settings.toppings.map(t=>t.name).join()==='ไข่มุก,ฟร�
 if(!S.settings.mig20261107){const st=S.settings;st.mig20261107=1;
   if(!st.toppings.some(t=>t.name==='บราวนี่ cube'))st.toppings.push({id:uid(),name:'บราวนี่ cube',price:15});
   if(!st.sizes.some(z=>z.name==='เพิ่มไซส์'))st.sizes.push({name:'เพิ่มไซส์',add:5});}
+if(S.settings.footer==='ขอบคุณค่ะ')S.settings.footer='ขอบคุณที่มาอุดหนุนนะคะ';
 if(!S.settings.mig20261107b){S.settings.mig20261107b=1;
   [['เลิฟซ่าลิ้นจี่',35],['เลิฟซ่าฮันนี่เลมอน',35],['เลิฟซ่าองุ่นเคียวโฮ',35]].forEach(([n,p])=>{if(!S.menu.some(m=>m.name===n))S.menu.push({id:uid(),name:n,cat:'เลิฟซ่า',price:p,ap:{}})});}
 // ช่องทางขาย: หน้าร้าน + 4 แอป (ราคา/GP แยกแต่ละแอป)
