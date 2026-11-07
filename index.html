@@ -108,6 +108,7 @@ nav [data-p=settings]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .opts .tp{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px;background:#fff;border:2px solid var(--line);border-radius:16px;font-weight:500;color:var(--ink);font-size:12.5px}
 .opts .tp img{width:84px;height:64px;object-fit:cover;border-radius:10px}
 .opts .tp.on{border-color:var(--brand);background:var(--soft);color:var(--ink)}
+.opts .tp:not(:has(img)){justify-content:center;min-width:104px}
 .opts .tp.on::after{content:"✓";position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
 .sheet .qty{border-radius:14px}
 /* แท็บเล็ตแนวนอน (จอเตี้ย): หน้าเลือกเมนูให้จบในจอเดียว ไม่ต้องเลื่อนหาปุ่มเพิ่ม */
@@ -158,6 +159,9 @@ tr.void td{color:#bbb;text-decoration:line-through}
   .cart{position:fixed;left:0;right:0;bottom:0;border-left:0;border-radius:20px 20px 0 0;max-height:60vh;z-index:6;box-shadow:0 -4px 20px rgba(0,0,0,.12)}
   .cart .lines{max-height:30vh}
   .cart.mini .lines,.cart.mini .chan{display:none}
+  .cart .lines .empty{display:none}
+  .cart .chan{padding:10px 14px 6px}
+  .cart .foot{padding:10px 14px 12px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px}
   .item b{font-size:13px;padding:8px 2px 10px 10px}
   .item .pr{font-size:15px;padding:8px 10px 10px 2px}
@@ -369,6 +373,8 @@ if(!S.settings.mig20261107){const st=S.settings;st.mig20261107=1;
 if(S.settings.footer==='ขอบคุณค่ะ')S.settings.footer='ขอบคุณที่มาอุดหนุนนะคะ';
 if(!S.settings.mig20261107b){S.settings.mig20261107b=1;
   [['เลิฟซ่าลิ้นจี่',35],['เลิฟซ่าฮันนี่เลมอน',35],['เลิฟซ่าองุ่นเคียวโฮ',35]].forEach(([n,p])=>{if(!S.menu.some(m=>m.name===n))S.menu.push({id:uid(),name:n,cat:'เลิฟซ่า',price:p,ap:{}})});}
+if(!S.settings.mig20261107c){const st=S.settings;st.mig20261107c=1;
+  if(!st.toppings.some(t=>t.name==='ไม่ใส่ไข่มุก')){const i=st.toppings.findIndex(t=>t.name==='ไข่มุก');st.toppings.splice(i+1,0,{id:uid(),name:'ไม่ใส่ไข่มุก',price:0})}}
 // ช่องทางขาย: หน้าร้าน + 4 แอป (ราคา/GP แยกแต่ละแอป)
 const CH=[{k:'store',n:'หน้าร้าน',c:'#7a4a2b'},{k:'lineman',n:'LINE MAN',c:'#06c755'},{k:'grab',n:'Grab',c:'#00843d'},{k:'shopee',n:'ShopeeFood',c:'#ee4d2d'},{k:'robinhood',n:'Robinhood',c:'#7b2cbf'}];
 const APPS=CH.slice(1).map(c=>c.k);
@@ -440,11 +446,11 @@ function openItem(id){
   $('#miSize').innerHTML=st.sizes.map((s,i)=>`<button data-i="${i}">${esc(s.name)}${s.add?` +${s.add}`:''}</button>`).join('');
   $('#miSweet').innerHTML=st.sweet.map(v=>`<button data-v="${v}">${v}%</button>`).join('');
   $('#miTopWrap').style.display=st.toppings.length?'':'none';
-  $('#miTop').innerHTML=st.toppings.map(t=>`<button class="tp" data-id="${t.id}" ${t.out?'disabled':''}>${(t.img||IMG[t.name])?`<img src="${t.img||IMG[t.name]}" alt="" decoding="async">`:''}${esc(t.name)} ${t.out?'(หมด)':+t.price?'+'+t.price:'ฟรี'}</button>`).join('');
+  $('#miTop').innerHTML=st.toppings.map(t=>`<button class="tp" data-id="${t.id}" ${t.out?'disabled':''}>${(t.img||IMG[t.name])?`<img src="${t.img||IMG[t.name]}" alt="" decoding="async">`:''}${esc(t.name)} ${t.out?'(หมด)':+t.price?'+'+t.price:/^ไม่/.test(t.name)?'':'ฟรี'}</button>`).join('');
   $('#miNote').value='';
   $$('#miSize button').forEach(b=>b.onclick=()=>{cur.size=st.sizes[b.dataset.i];paintItem()});
   $$('#miSweet button').forEach(b=>b.onclick=()=>{cur.sweet=+b.dataset.v;paintItem()});
-  $$('#miTop button').forEach(b=>b.onclick=()=>{const t=st.toppings.find(x=>x.id===b.dataset.id);const i=cur.tops.findIndex(x=>x.id===t.id);i>=0?cur.tops.splice(i,1):cur.tops.push({id:t.id,name:t.name,price:+t.price});paintItem()});
+  $$('#miTop button').forEach(b=>b.onclick=()=>{const t=st.toppings.find(x=>x.id===b.dataset.id);const i=cur.tops.findIndex(x=>x.id===t.id);if(i>=0)cur.tops.splice(i,1);else{const x=t.name.replace(/^ไม่ใส่/,'');cur.tops=cur.tops.filter(o=>o.name.replace(/^ไม่ใส่/,'')!==x);cur.tops.push({id:t.id,name:t.name,price:+t.price})}paintItem()});
   paintItem();$('#mItem').classList.add('on');
 }
 const unitOf=l=>l.base+(l.size?+l.size.add:0)+l.tops.reduce((a,t)=>a+t.price,0);
@@ -479,6 +485,8 @@ function renderCart(){
   $('#payBtn').style.background=chOf(channel).c;
 }
 $('#clearBtn').onclick=()=>{if(cart.length&&confirm('ล้างรายการทั้งหมด?')){cart=[];renderCart()}};
+// จอแคบ: เว้นที่ใต้เมนูเท่าความสูงตะกร้า เมนูแถวสุดท้ายจะไม่โดนบัง
+if(window.ResizeObserver)new ResizeObserver(()=>{$('#sell').style.paddingBottom=innerWidth<=820?$('#cart').offsetHeight+16+'px':''}).observe($('#cart'));
 $('#cart').onclick=e=>{if(innerWidth<=820&&e.target.closest('.sum'))$('#cart').classList.toggle('mini')};
 
 /* ---------- คิดเงิน ---------- */
