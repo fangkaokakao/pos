@@ -110,6 +110,8 @@ nav [data-p=settings]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .opts .tp.on{border-color:var(--brand);background:var(--soft);color:var(--ink)}
 .opts .tp.on::after{content:"✓";position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
 .sheet .qty{border-radius:14px}
+/* แท็บเล็ตแนวนอน (จอเตี้ย): หน้าเลือกเมนูให้จบในจอเดียว ไม่ต้องเลื่อนหาปุ่มเพิ่ม */
+@media (max-height:700px){#mItem .sheet{width:min(760px,100%);padding:14px 20px}#mItem h2{font-size:19px;margin:0 0 4px}#mItem .mis{display:flex;align-items:center;gap:10px;margin-top:8px}#mItem .mis>h3{margin:0;flex:0 0 66px;font-size:14px}#mItem .mis>.opts,#mItem .mis>input{flex:1}#mItem .opts button{padding:8px 12px}#mItem .opts .tp{padding:4px 6px;font-size:12px;border-radius:12px;gap:2px}#mItem .opts .tp img{width:58px;height:42px}#mItem .row{margin-top:10px!important}}
 .row{display:flex;gap:8px;align-items:center}
 .row>*{flex:1}
 .paybig{font-size:40px;font-weight:700;text-align:center;margin:6px 0;color:var(--brand)}
@@ -277,12 +279,12 @@ tr.void td{color:#bbb;text-decoration:line-through}
 <!-- เลือกตัวเลือกเมนู -->
 <div class="modal" id="mItem"><div class="sheet">
   <h2 id="miName"></h2>
-  <div id="miSizeWrap"><h3>ขนาด</h3><div class="opts" id="miSize"></div></div>
-  <h3>ความหวาน</h3><div class="opts" id="miSweet"></div>
-  <div id="miTopWrap"><h3>ท็อปปิ้ง</h3><div class="opts" id="miTop"></div></div>
-  <h3>หมายเหตุ</h3><input id="miNote" placeholder="เช่น น้ำแข็งน้อย">
-  <h3>จำนวน</h3>
-  <div class="qty" style="gap:12px"><button id="miMinus" style="width:48px;height:48px;font-size:22px">−</button><b id="miQty" style="font-size:24px;min-width:30px;text-align:center">1</b><button id="miPlus" style="width:48px;height:48px;font-size:22px">+</button></div>
+  <div class="mis" id="miSizeWrap"><h3>ขนาด</h3><div class="opts" id="miSize"></div></div>
+  <div class="mis"><h3>ความหวาน</h3><div class="opts" id="miSweet"></div></div>
+  <div class="mis" id="miTopWrap"><h3>ท็อปปิ้ง</h3><div class="opts" id="miTop"></div></div>
+  <div class="mis"><h3>หมายเหตุ</h3><input id="miNote" placeholder="เช่น น้ำแข็งน้อย"></div>
+  <div class="mis"><h3>จำนวน</h3>
+  <div class="qty" style="gap:12px"><button id="miMinus" style="width:48px;height:48px;font-size:22px">−</button><b id="miQty" style="font-size:24px;min-width:30px;text-align:center">1</b><button id="miPlus" style="width:48px;height:48px;font-size:22px">+</button></div></div>
   <div class="row" style="margin-top:16px"><button class="ghost" data-close style="flex:0 0 auto">ยกเลิก</button><button class="big" id="miAdd">เพิ่ม</button></div>
 </div></div>
 
