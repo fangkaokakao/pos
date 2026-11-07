@@ -48,6 +48,8 @@ nav [data-p=settings]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .shiftbtn.off{background:#ffd54f;color:#2a1c13;font-weight:700}
 .page{display:none;padding:18px 22px}
 .page.on{display:block}
+/* โหมดดูอย่างเดียว (มือถือแฟน) */
+.view #shiftBtn,.view nav [data-p=sell],.view nav [data-p=settings],.view [data-pr],.view [data-void],.view #repPrint{display:none!important}
 
 /* ขาย */
 #sell{display:none;grid-template-columns:1fr 380px;gap:0;height:100vh;padding:0}
@@ -362,8 +364,11 @@ function sample(){
     orders:[]
   };
 }
+// ?view = ดูยอดจากออนไลน์อย่างเดียว (view.html โหลดมาให้) ไม่แตะข้อมูลในเครื่อง
+const VIEW=/[?&]view\b/.test(location.search);
 let S;
-try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(VIEW){try{S=JSON.parse(sessionStorage.getItem('nanicha_view'))}catch(e){}if(!S||!S.menu){location.replace('view.html');throw 0}}
+else try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.menu)S=sample();
 else if(S.menu.some(m=>m.name==='ชาพีช')&&S.menu.length===8){const n=sample();S.menu=n.menu;S.settings.sizes=n.settings.sizes;S.settings.toppings=n.settings.toppings;if(S.settings.shopName==='ร้านชานม')S.settings.shopName=n.settings.shopName;}
 else if(S.settings.toppings.map(t=>t.name).join()==='ไข่มุก,ฟรุตสลัด,บุก')S.settings.toppings=sample().settings.toppings;
@@ -390,7 +395,23 @@ function migrate(){
   S.shifts=S.shifts||[];if(S.shift===undefined)S.shift=null;
 }
 migrate();
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('บันทึกไม่ได้ พื้นที่เครื่องเต็ม กดสำรองข้อมูลแล้วลบของเก่า');return false}};
+/* ---------- ส่งยอดขึ้นออนไลน์ ให้ดูทางมือถือได้ (view.html) ---------- */
+const SB='https://owbaacymjxehenribbgu.supabase.co/rest/v1/rpc/',SBK='sb_publishable_wdNoCZ3wxXJwT3KQsDVLEg_UT8BfoMF',PUSHK='57c030938b3d460ba82bcfef61d243e6';
+let syncT=null,syncing=false;
+function syncSoon(ms=3000){if(VIEW)return;clearTimeout(syncT);syncT=setTimeout(syncNow,ms)}
+async function syncNow(){
+  if(syncing){syncSoon();return}
+  if(!navigator.onLine){syncSoon(60000);return}
+  syncing=true;const T=Date.now();let last=0;try{last=+localStorage.getItem('nanicha_sync')||0}catch(e){}
+  const strip=a=>a.map(({img,...x})=>x);
+  const p={orders:S.orders.filter(o=>o.ts>=last||(o.voidAt||0)>=last),shifts:S.shifts.filter(h=>(h.closeAt||h.openAt)>=last),
+    shift:S.shift||null,settings:{...S.settings,toppings:strip(S.settings.toppings)},menu:strip(S.menu)};
+  try{const r=await fetch(SB+'nanicha_push',{method:'POST',headers:{apikey:SBK,'Content-Type':'application/json'},body:JSON.stringify({k:PUSHK,p})});
+    if(!r.ok)throw r.status;try{localStorage.setItem('nanicha_sync',T)}catch(e){}}
+  catch(e){syncSoon(60000)}finally{syncing=false}
+}
+addEventListener('online',()=>syncSoon(1000));
+const save=()=>{if(VIEW)return true;try{localStorage.setItem(KEY,JSON.stringify(S));syncSoon();return true}catch(e){toast('บันทึกไม่ได้ พื้นที่เครื่องเต็ม กดสำรองข้อมูลแล้วลบของเก่า');return false}};
 // ล้างข้อมูลทดลองก่อนเปิดร้านจริง 8 พ.ย. 2569 (เก็บเมนู/ตั้งค่าไว้)
 {const T0=new Date(2026,10,8).getTime(),n=S.orders.length+S.shifts.length+(S.shift?1:0);
   S.orders=S.orders.filter(o=>o.ts>=T0);S.shifts=S.shifts.filter(h=>h.openAt>=T0);
@@ -926,17 +947,21 @@ function downloadBackup(){
   if($('#lastBk'))$('#lastBk').textContent=new Date(S.settings.lastBackup).toLocaleString('th-TH');
 }
 $('#backup').onclick=downloadBackup;
-$('#restore').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.menu||!d.orders)throw 0;if(confirm('แทนที่ข้อมูลในเครื่องนี้ด้วยไฟล์สำรอง?')){S=d;migrate();save();renderMenu();renderSettings();renderShiftBtn();toast('กู้คืนแล้ว')}}catch(_){toast('ไฟล์ไม่ถูกต้อง')}})};
+$('#restore').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.menu||!d.orders)throw 0;if(confirm('แทนที่ข้อมูลในเครื่องนี้ด้วยไฟล์สำรอง?')){S=d;migrate();try{localStorage.removeItem('nanicha_sync')}catch(e){}save();renderMenu();renderSettings();renderShiftBtn();toast('กู้คืนแล้ว')}}catch(_){toast('ไฟล์ไม่ถูกต้อง')}})};
 
 renderChan();renderMenu();renderCart();renderShiftBtn();
-{const lb=S.settings.lastBackup,days=lb?(Date.now()-lb)/864e5:0;
+if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
+  const b=document.createElement('button');b.className='shiftbtn';b.textContent='โหลดใหม่'+(S.syncedAt?' · ร้านส่งล่าสุด '+dkey(S.syncedAt).slice(5).split('-').reverse().join('/')+' '+tstr(S.syncedAt):'');
+  b.onclick=()=>location.replace('view.html');$('#shiftBtn').after(b);}
+else syncSoon(2000);
+if(!VIEW){const lb=S.settings.lastBackup,days=lb?(Date.now()-lb)/864e5:0;
  if(lb?days>3:S.orders.length)setTimeout(()=>toast(lb?`ไม่ได้สำรองข้อมูลมา ${Math.floor(days)} วัน กด ตั้งค่า > สำรองข้อมูล`:'ยังไม่เคยสำรองข้อมูล กด ตั้งค่า > สำรองข้อมูล'),800)}
 </script>
 <script>if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js')</script>
 <script>
 // ไม่ให้จอดับระหว่างเปิดร้าน (จอดับนานๆ Android จะปิดแอปทิ้ง)
 let wl=null;const keepAwake=async()=>{try{if('wakeLock'in navigator&&document.visibilityState==='visible'&&!wl){wl=await navigator.wakeLock.request('screen');wl.onrelease=()=>wl=null}}catch(e){}};
-keepAwake();document.addEventListener('visibilitychange',keepAwake);document.addEventListener('pointerdown',keepAwake);
+if(!VIEW){keepAwake();document.addEventListener('visibilitychange',keepAwake);document.addEventListener('pointerdown',keepAwake);}
 </script>
 </body>
 </html>
