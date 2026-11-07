@@ -21,7 +21,8 @@ const m=document.getElementById('m');
 let es=true;try{es=localStorage.getItem('nanicha_lang')!=='th'}catch(e){}
 const L=(th,sp)=>es?sp:th;
 m.textContent=L('กำลังโหลดยอดขาย…','Cargando ventas…');
-let k=(location.hash.match(/^#(?:k=)?([0-9a-z]+)$/)||[])[1];
+// รับรหัสได้ทั้ง #รหัส และ ?k=รหัส (บางแอป เช่น LINE ตัด # หรือต่อท้ายลิงก์)
+let k=((location.hash+'&'+location.search).match(/(?:^#|[?&#]k=)([0-9a-z]{6,})/i)||[])[1];if(k)k=k.toLowerCase();
 try{if(!k)k=localStorage.getItem('nanicha_viewkey')}catch(e){}
 const fail=t=>{m.innerHTML=t+'<br><button onclick="location.reload()">'+L('ลองใหม่','Reintentar')+'</button>'};
 const BAD=L('ลิงก์ไม่ถูกต้อง ขอลิงก์ใหม่จากร้านค่ะ','Enlace no válido. Pide un enlace nuevo a la tienda.');
