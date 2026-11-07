@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="theme-color" content="#6b3f22">
 <title>POS ร้านชานม</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -897,5 +901,6 @@ renderChan();renderMenu();renderCart();renderShiftBtn();
 {const lb=S.settings.lastBackup,days=lb?(Date.now()-lb)/864e5:0;
  if(lb?days>3:S.orders.length)setTimeout(()=>toast(lb?`ไม่ได้สำรองข้อมูลมา ${Math.floor(days)} วัน กด ตั้งค่า > สำรองข้อมูล`:'ยังไม่เคยสำรองข้อมูล กด ตั้งค่า > สำรองข้อมูล'),800)}
 </script>
+<script>if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js')</script>
 </body>
 </html>
