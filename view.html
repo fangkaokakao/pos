@@ -17,10 +17,15 @@ button{margin-top:12px;padding:10px 22px;border:0;border-radius:14px;background:
 // ลิงก์ดูยอดอย่างเดียว: view.html#k=รหัสดูยอด → โหลดยอดจากออนไลน์ แล้วเปิดหน้า POS โหมดดู (?view)
 const SB='https://owbaacymjxehenribbgu.supabase.co/rest/v1/rpc/',SBK='sb_publishable_wdNoCZ3wxXJwT3KQsDVLEg_UT8BfoMF';
 const m=document.getElementById('m');
+// ข้อความภาษาสเปนเป็นค่าเริ่มต้น (แฟนพี่) ถ้าเคยกดเปลี่ยนเป็นไทยจะจำไว้
+let es=true;try{es=localStorage.getItem('nanicha_lang')!=='th'}catch(e){}
+const L=(th,sp)=>es?sp:th;
+m.textContent=L('กำลังโหลดยอดขาย…','Cargando ventas…');
 let k=(location.hash.match(/^#(?:k=)?([0-9a-z]+)$/)||[])[1];
 try{if(!k)k=localStorage.getItem('nanicha_viewkey')}catch(e){}
-const fail=t=>{m.innerHTML=t+'<br><button onclick="location.reload()">ลองใหม่</button>'};
-if(!k)m.textContent='ลิงก์ไม่ถูกต้อง ขอลิงก์ใหม่จากร้านค่ะ';
+const fail=t=>{m.innerHTML=t+'<br><button onclick="location.reload()">'+L('ลองใหม่','Reintentar')+'</button>'};
+const BAD=L('ลิงก์ไม่ถูกต้อง ขอลิงก์ใหม่จากร้านค่ะ','Enlace no válido. Pide un enlace nuevo a la tienda.');
+if(!k)m.textContent=BAD;
 else{
   // โหลดตั้งแต่ต้นเดือนที่แล้ว (ดู "เดือนนี้" และเดือนก่อนได้)
   const n=new Date(),since=new Date(n.getFullYear(),n.getMonth()-1,1).getTime();
@@ -28,11 +33,11 @@ else{
     .then(r=>{if(!r.ok)throw r.status;return r.json()})
     .then(v=>{
       try{localStorage.setItem('nanicha_viewkey',k)}catch(e){} // จำรหัสเฉพาะลิงก์ที่ใช้ได้
-      if(!v.menu){m.textContent='ยังไม่มียอดจากเครื่องที่ร้านค่ะ';return}
+      if(!v.menu){m.textContent=L('ยังไม่มียอดจากเครื่องที่ร้านค่ะ','Aún no hay ventas enviadas desde la tienda.');return}
       sessionStorage.setItem('nanicha_view',JSON.stringify({settings:v.settings,menu:v.menu,orders:v.orders,shifts:v.shifts,shift:v.shift,syncedAt:v.syncedAt}));
       location.replace('./?view=1');
     })
-    .catch(e=>fail(e===400||e===401?'ลิงก์ไม่ถูกต้อง ขอลิงก์ใหม่จากร้านค่ะ':'โหลดไม่ได้ เช็กเน็ตแล้วลองใหม่ค่ะ'));
+    .catch(e=>fail(e===400||e===401?BAD:L('โหลดไม่ได้ เช็กเน็ตแล้วลองใหม่ค่ะ','No se pudo cargar. Revisa la conexión e inténtalo de nuevo.')));
 }
 </script>
 </body>

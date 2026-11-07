@@ -366,6 +366,7 @@ function sample(){
 }
 // ?view = ดูยอดจากออนไลน์อย่างเดียว (view.html โหลดมาให้) ไม่แตะข้อมูลในเครื่อง
 const VIEW=/[?&]view\b/.test(location.search);
+let TR=t=>t; // แปลข้อความ (โหมดดูภาษาสเปนจะตั้งให้)
 let S;
 if(VIEW){try{S=JSON.parse(sessionStorage.getItem('nanicha_view'))}catch(e){}if(!S||!S.menu){location.replace('view.html');throw 0}}
 else try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
@@ -885,8 +886,8 @@ $('#repCsv').onclick=()=>{
   const f=$('#repFrom').value,t=$('#repTo').value;
   S.orders.filter(inRange).forEach(o=>rows.push([dkey(o.ts),tstr(o.ts),o.no,chOf(o.channel).n,payOf(o),refOf(o),
     o.items.map(i=>`${i.qty}x ${i.name}${i.size?' '+i.size:''}`).join(' / '),o.total,o.gpRate??'',o.gp||0,o.net??o.total-(o.gp||0),o.void?'ยกเลิก':'',o.voidReason||'']));
-  const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`ยอดขาย_${f}_${t}.csv`;a.click();
+  const csv='﻿'+rows.map(r=>r.map(v=>`"${TR(String(v)).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${TR('ยอดขาย')}_${f}_${t}.csv`;a.click();
 };
 $('#repPrint').onclick=()=>{
   const r=calc(repOrders()),f=$('#repFrom').value,t=$('#repTo').value;
@@ -952,7 +953,46 @@ $('#restore').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(
 renderChan();renderMenu();renderCart();renderShiftBtn();
 if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
   const b=document.createElement('button');b.className='shiftbtn';b.textContent='โหลดใหม่'+(S.syncedAt?' · ร้านส่งล่าสุด '+dkey(S.syncedAt).slice(5).split('-').reverse().join('/')+' '+tstr(S.syncedAt):'');
-  b.onclick=()=>location.replace('view.html');$('#shiftBtn').after(b);}
+  b.onclick=()=>location.replace('view.html');$('#shiftBtn').after(b);
+  // หลังบ้านภาษาสเปน (แฟนพี่) — ค่าเริ่มต้นสเปน ปุ่ม Español/ภาษาไทย สลับได้ แปลข้อความบนจอหลังวาดเสร็จ
+  let lang='es';try{lang=localStorage.getItem('nanicha_lang')||'es'}catch(e){}
+  const lb=document.createElement('button');lb.className='shiftbtn';lb.textContent=lang==='es'?'ภาษาไทย':'Español';
+  lb.onclick=()=>{try{localStorage.setItem('nanicha_lang',lang==='es'?'th':'es')}catch(e){}location.reload()};b.after(lb);
+  if(lang==='es'){
+    const D={'ออเดอร์วันนี้':'Pedidos del día','สรุปยอด':'Resumen','ถึง':'hasta','วันนี้':'Hoy','เดือนนี้':'Este mes','โหลด Excel (CSV)':'Descargar Excel (CSV)',
+      'ยอดขายรวม':'Ventas totales','ร้านได้จริง (หลังหัก GP)':'Neto para la tienda (tras comisión)','ร้านได้จริง':'Neto tienda','เงินสด':'Efectivo','QR พร้อมเพย์':'QR PromptPay',
+      'ยอดแอปรวม':'Ventas por apps','GP แอปรวม':'Comisión apps','จำนวนแก้ว':'Vasos vendidos','ยกเลิก (':'Anulados (','บิล)':'tickets)',
+      'แยกตามช่องทาง':'Por canal','กะ / นับเงิน':'Turnos / caja','เมนูขายดี':'Más vendidos','ช่องทาง':'Canal','บิล':'Ticket','ยอดขาย':'Ventas','GP':'Comisión',
+      'ร้านได้':'Neto','เฉลี่ย/บิล':'Media/ticket','คนขาย':'Vendedor','เวลา':'Hora','ตั้งต้น':'Fondo inicial','ขายสด':'Ventas efectivo','เข้า':'Entradas','ออก':'Salidas',
+      'ควรมี':'Debería haber','นับได้':'Contado','ต่าง':'Diferencia','ยังเปิด':'abierto','ไม่มีกะในช่วงนี้':'No hay turnos en este periodo',
+      'เมนู':'Bebida','แก้ว':'Vasos','ยอด':'Importe','ไม่มียอดในช่วงนี้':'No hay ventas en este periodo','รายการ':'Productos','จ่าย':'Pago',
+      'ยังไม่มีออเดอร์วันนี้':'Aún no hay pedidos este día','ยกเลิก':'Anulado','หน้าร้าน':'En tienda','โหลดใหม่':'Actualizar','ร้านส่งล่าสุด':'envío',
+      'ลูกค้ายกเลิก':'cancelado por el cliente','กดผิด':'error al marcar','ทำผิดเมนู':'bebida equivocada','ปกติ':'normal','เพิ่มไซส์':'tamaño grande',
+      'วันที่':'Fecha','การจ่าย':'Forma de pago','เลขออเดอร์แอป':'Nº pedido app','GP %':'Comisión %','สถานะ':'Estado','เหตุผลยกเลิก':'Motivo anulación',
+      'ชานมไต้หวัน':'Té con leche taiwanés','ชานมแคนตาลูป':'Té con leche de melón','ชานมกล้วย':'Té con leche de plátano','ชานมคาปูชิโน่':'Té con leche capuchino',
+      'ชานมเผือก':'Té con leche de taro','ชานมโกโก้':'Té con leche de cacao','ชานมช็อคโกแลต':'Té con leche de chocolate','ชานมสตรอเบอรี่':'Té con leche de fresa',
+      'ชานมลาเต้':'Té con leche latte','ชานมเอสเปรสโซ่':'Té con leche espresso','ชาเขียวมะลิไต้หวัน':'Té verde jazmín taiwanés','ชาเขียวสตรอเบอรี่':'Té verde de fresa',
+      'ชาเขียวลิ้นจี่':'Té verde de lichi','ชาเขียวองุ่น':'Té verde de uva','ชาเขียวเสาวรส':'Té verde de maracuyá','ชาเขียวแอปเปิ้ล':'Té verde de manzana',
+      'ชาเขียวกีวี่':'Té verde de kiwi','ชาเขียวส้ม':'Té verde de naranja','ชาเขียวแคนตาลูป':'Té verde de melón','ชาเขียวพันซ์':'Té verde ponche',
+      'ชาเขียวนมสด':'Té verde con leche','ชาเขียวไทยมะนาว':'Té verde tailandés con limón','ชาเขียวไทยองุ่น':'Té verde tailandés de uva',
+      'ชาเขียวไทยเสาวรส':'Té verde tailandés de maracuyá','ชาเขียวไทยแอปเปิ้ล':'Té verde tailandés de manzana','ชาเขียวไทยกีวี่':'Té verde tailandés de kiwi',
+      'ชาเขียวไทยสตรอเบอรี่':'Té verde tailandés de fresa','ชาเขียวไทยลิ้นจี่':'Té verde tailandés de lichi','ชาไทย':'Té tailandés','ชาดำเย็น':'Té negro helado',
+      'ชาไทยมะนาว':'Té tailandés con limón','ชาไทยเสาวรส':'Té tailandés de maracuyá','ชาไทยแอปเปิ้ล':'Té tailandés de manzana','ชาไทยกีวี่':'Té tailandés de kiwi',
+      'ชาไทยสตรอเบอรี่':'Té tailandés de fresa','ชาไทยลิ้นจี่':'Té tailandés de lichi','มะนาวโซดา':'Soda de limón','องุ่นโซดา':'Soda de uva','เสาวรสโซดา':'Soda de maracuyá',
+      'แอปเปิ้ลโซดา':'Soda de manzana','กีวี่โซดา':'Soda de kiwi','สตรอเบอรี่โซดา':'Soda de fresa','ลิ้นจี่โซดา':'Soda de lichi','แคนตาลูปโซดา':'Soda de melón',
+      'พันซ์โซดา':'Soda ponche','บลูฮาวายโซดา':'Soda Blue Hawaii','นมสด':'Leche fresca','นมสดแคนตาลูป':'Leche de melón','นมสดคาปูชิโน่':'Leche capuchino',
+      'นมสดเผือก':'Leche de taro','นมสดโกโก้':'Leche de cacao','นมสดช็อคโกแลต':'Leche de chocolate','นมสดสตรอเบอรี่':'Leche de fresa','นมสดกล้วย':'Leche de plátano',
+      'นมสดบราวน์ชูก้า':'Leche con azúcar moreno','ชานมบราวน์ชูก้า':'Té con leche y azúcar moreno','ชาไทยบราวน์ชูก้า':'Té tailandés con azúcar moreno',
+      'ชาเขียวนมสดบราวน์ชูก้า':'Té verde con leche y azúcar moreno','อเมริกาโน่':'Americano','เอสเปรสโซ่':'Espresso','คาปูชิโน่':'Capuchino','มอคค่า':'Moca',
+      'ลาเต้':'Latte','โกโก้เย็น':'Cacao helado','ช็อคโกแลต':'Chocolate','โอวัลติน':'Ovaltine','เลิฟซ่าลิ้นจี่':'Lovesa de lichi',
+      'เลิฟซ่าฮันนี่เลมอน':'Lovesa miel y limón','เลิฟซ่าองุ่นเคียวโฮ':'Lovesa uva Kyoho'};
+    // คำยาวก่อน กันคำสั้นไปกินคำยาว (เช่น ชาไทย ใน ชาไทยมะนาว)
+    const re=new RegExp(Object.keys(D).sort((x,y)=>y.length-x.length).map(k=>k.replace(/[()%/]/g,'\\$&')).join('|'),'g');
+    TR=t=>t.replace(re,m=>D[m]);
+    const walk=n=>{if(n.nodeType===3){const v=TR(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v}else if(n.nodeType===1&&n.tagName!=='SCRIPT')n.childNodes.forEach(walk)};
+    document.documentElement.lang='es';walk(document.body);
+    new MutationObserver(ms=>ms.forEach(m=>m.type==='characterData'?walk(m.target):m.addedNodes.forEach(walk))).observe(document.body,{childList:true,subtree:true,characterData:true});
+  }}
 else syncSoon(2000);
 if(!VIEW){const lb=S.settings.lastBackup,days=lb?(Date.now()-lb)/864e5:0;
  if(lb?days>3:S.orders.length)setTimeout(()=>toast(lb?`ไม่ได้สำรองข้อมูลมา ${Math.floor(days)} วัน กด ตั้งค่า > สำรองข้อมูล`:'ยังไม่เคยสำรองข้อมูล กด ตั้งค่า > สำรองข้อมูล'),800)}
