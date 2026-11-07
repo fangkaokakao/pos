@@ -375,6 +375,10 @@ if(!S.settings.mig20261107b){S.settings.mig20261107b=1;
   [['เลิฟซ่าลิ้นจี่',35],['เลิฟซ่าฮันนี่เลมอน',35],['เลิฟซ่าองุ่นเคียวโฮ',35]].forEach(([n,p])=>{if(!S.menu.some(m=>m.name===n))S.menu.push({id:uid(),name:n,cat:'เลิฟซ่า',price:p,ap:{}})});}
 if(!S.settings.mig20261107c){const st=S.settings;st.mig20261107c=1;
   if(!st.toppings.some(t=>t.name==='ไม่ใส่ไข่มุก')){const i=st.toppings.findIndex(t=>t.name==='ไข่มุก');st.toppings.splice(i+1,0,{id:uid(),name:'ไม่ใส่ไข่มุก',price:0})}}
+if(!S.settings.mig20261107d){const st=S.settings;st.mig20261107d=1;
+  const n=st.toppings.find(t=>t.name==='ไม่ใส่ไข่มุก');if(n)n.name='ไม่ใส่ Topping';else if(!st.toppings.some(t=>t.name==='ไม่ใส่ Topping'))st.toppings.push({id:uid(),name:'ไม่ใส่ Topping',price:0});
+  const O=['ไม่ใส่ Topping','ไข่มุก','บุก','ฟรุตสลัด','เยลลี่แอปเปิ้ล'],r=t=>{const i=O.indexOf(t.name);return i<0?O.length:i};
+  st.toppings=st.toppings.map((t,i)=>[t,i]).sort((x,y)=>r(x[0])-r(y[0])||x[1]-y[1]).map(x=>x[0]);}
 // ช่องทางขาย: หน้าร้าน + 4 แอป (ราคา/GP แยกแต่ละแอป)
 const CH=[{k:'store',n:'หน้าร้าน',c:'#7a4a2b'},{k:'lineman',n:'LINE MAN',c:'#06c755'},{k:'grab',n:'Grab',c:'#00843d'},{k:'shopee',n:'ShopeeFood',c:'#ee4d2d'},{k:'robinhood',n:'Robinhood',c:'#7b2cbf'}];
 const APPS=CH.slice(1).map(c=>c.k);
@@ -455,7 +459,7 @@ function openItem(id){
   $('#miNote').value='';
   $$('#miSize button').forEach(b=>b.onclick=()=>{cur.size=st.sizes[b.dataset.i];paintItem()});
   $$('#miSweet button').forEach(b=>b.onclick=()=>{cur.sweet=+b.dataset.v;paintItem()});
-  $$('#miTop button').forEach(b=>b.onclick=()=>{const t=st.toppings.find(x=>x.id===b.dataset.id);const i=cur.tops.findIndex(x=>x.id===t.id);if(i>=0)cur.tops.splice(i,1);else{const x=t.name.replace(/^ไม่ใส่/,'');cur.tops=cur.tops.filter(o=>o.name.replace(/^ไม่ใส่/,'')!==x);cur.tops.push({id:t.id,name:t.name,price:+t.price})}paintItem()});
+  $$('#miTop button').forEach(b=>b.onclick=()=>{const t=st.toppings.find(x=>x.id===b.dataset.id);const i=cur.tops.findIndex(x=>x.id===t.id);if(i>=0)cur.tops.splice(i,1);else{const x=t.name.replace(/^ไม่ใส่/,'');cur.tops=cur.tops.filter(o=>o.name.replace(/^ไม่ใส่/,'')!==x);if(t.name==='ไม่ใส่ Topping')cur.tops=[];else cur.tops=cur.tops.filter(o=>o.name!=='ไม่ใส่ Topping');cur.tops.push({id:t.id,name:t.name,price:+t.price})}paintItem()});
   paintItem();$('#mItem').classList.add('on');
 }
 const unitOf=l=>l.base+(l.size?+l.size.add:0)+l.tops.reduce((a,t)=>a+t.price,0);
