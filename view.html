@@ -17,7 +17,7 @@ button{margin-top:12px;padding:10px 22px;border:0;border-radius:14px;background:
 // ลิงก์ดูยอดอย่างเดียว: view.html#k=รหัสดูยอด → โหลดยอดจากออนไลน์ แล้วเปิดหน้า POS โหมดดู (?view)
 const SB='https://owbaacymjxehenribbgu.supabase.co/rest/v1/rpc/',SBK='sb_publishable_wdNoCZ3wxXJwT3KQsDVLEg_UT8BfoMF';
 const m=document.getElementById('m');
-let k=(location.hash.match(/k=([0-9a-f]+)/)||[])[1];
+let k=(location.hash.match(/^#(?:k=)?([0-9a-z]+)$/)||[])[1];
 try{if(!k)k=localStorage.getItem('nanicha_viewkey')}catch(e){}
 const fail=t=>{m.innerHTML=t+'<br><button onclick="location.reload()">ลองใหม่</button>'};
 if(!k)m.textContent='ลิงก์ไม่ถูกต้อง ขอลิงก์ใหม่จากร้านค่ะ';
