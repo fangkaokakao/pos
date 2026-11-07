@@ -24,6 +24,8 @@ body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text}
 button{touch-action:manipulation}
 button img{pointer-events:none;-webkit-user-drag:none}
+/* จอสัมผัส (แท็บเล็ต/มือถือ): ตัดเงาฟุ้ง ใช้เส้นขอบบางแทน เลื่อนลื่นขึ้นบนเครื่องสเปกต่ำ */
+@media (pointer:coarse){.item,.cats button,.card,.box{box-shadow:none;outline:1px solid #eee3d8;outline-offset:-1px}.item{contain:content}.menuside,.lines{overscroll-behavior:contain}}
 button:active{opacity:.7}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font-family:"Prompt","Sarabun",-apple-system,system-ui,sans-serif;font-size:15px;padding-left:var(--rail)}
@@ -402,7 +404,7 @@ function renderMenu(){
     `<button class="outbtn ${outMode?'on':''}" id="outBtn">${outMode?'เสร็จ (แตะเมนูเพื่อสลับ หมด/มี)':'ตั้งของหมด'}</button>`].join('');
   $$('#cats [data-c]').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderMenu();scrollTo(0,0)});
   $('#outBtn').onclick=()=>{outMode=!outMode;renderMenu()};
-  const pic=x=>{const u=x.img||IMG[x.name];return u?`<img src="${u}" alt="">`:`<em>${esc((x.name||'?').slice(0,2))}</em>`};
+  const pic=x=>{const u=x.img||IMG[x.name];return u?`<img src="${u}" alt="" decoding="async">`:`<em>${esc((x.name||'?').slice(0,2))}</em>`};
   const tile=(x,attr,tag)=>`<button class="item ${x.out?'out':''}" ${attr}>${pic(x)}<b>${esc(x.name)}</b>${x.out?'<span class="pr">หมด</span>':tag}</button>`;
   const tops=outMode&&S.settings.toppings.length?`<div class="sec">ท็อปปิ้ง</div>`+S.settings.toppings.map(t=>tile(t,`data-top="${t.id}"`,'<span class="pr">มีของ</span>')).join(''):'';
   $('#grid').innerHTML=tops+types.filter(t=>cat==='ทั้งหมด'||t===cat).map(t=>{
@@ -436,7 +438,7 @@ function openItem(id){
   $('#miSize').innerHTML=st.sizes.map((s,i)=>`<button data-i="${i}">${esc(s.name)}${s.add?` +${s.add}`:''}</button>`).join('');
   $('#miSweet').innerHTML=st.sweet.map(v=>`<button data-v="${v}">${v}%</button>`).join('');
   $('#miTopWrap').style.display=st.toppings.length?'':'none';
-  $('#miTop').innerHTML=st.toppings.map(t=>`<button class="tp" data-id="${t.id}" ${t.out?'disabled':''}>${(t.img||IMG[t.name])?`<img src="${t.img||IMG[t.name]}" alt="">`:''}${esc(t.name)} ${t.out?'(หมด)':+t.price?'+'+t.price:'ฟรี'}</button>`).join('');
+  $('#miTop').innerHTML=st.toppings.map(t=>`<button class="tp" data-id="${t.id}" ${t.out?'disabled':''}>${(t.img||IMG[t.name])?`<img src="${t.img||IMG[t.name]}" alt="" decoding="async">`:''}${esc(t.name)} ${t.out?'(หมด)':+t.price?'+'+t.price:'ฟรี'}</button>`).join('');
   $('#miNote').value='';
   $$('#miSize button').forEach(b=>b.onclick=()=>{cur.size=st.sizes[b.dataset.i];paintItem()});
   $$('#miSweet button').forEach(b=>b.onclick=()=>{cur.sweet=+b.dataset.v;paintItem()});
