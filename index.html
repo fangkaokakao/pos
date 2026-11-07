@@ -642,7 +642,7 @@ function escpos(c,kick){
       out.push(v);
     }
   }
-  out.push(0x1B,0x64,4);
+  out.push(0x1B,0x64,8); // เลื่อนกระดาษพ้นที่ฉีก ข้อความท้ายบิลไม่ขาด
   if(kick)out.push(...KICK);
   return new Uint8Array(out);
 }
