@@ -387,6 +387,11 @@ function migrate(){
 }
 migrate();
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('บันทึกไม่ได้ พื้นที่เครื่องเต็ม กดสำรองข้อมูลแล้วลบของเก่า');return false}};
+// ล้างข้อมูลทดลองก่อนเปิดร้านจริง 8 พ.ย. 2569 (เก็บเมนู/ตั้งค่าไว้)
+{const T0=new Date(2026,10,8).getTime(),n=S.orders.length+S.shifts.length+(S.shift?1:0);
+  S.orders=S.orders.filter(o=>o.ts>=T0);S.shifts=S.shifts.filter(h=>h.openAt>=T0);
+  if(S.shift&&S.shift.openAt<T0)S.shift=null;
+  if(S.orders.length+S.shifts.length+(S.shift?1:0)<n){save();try{localStorage.removeItem('milktea_cart')}catch(e){}}}
 function toast(t){const el=$('#toast');el.textContent=t;el.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.display='none',2200)}
 
 /* ---------- หน้า ---------- */
