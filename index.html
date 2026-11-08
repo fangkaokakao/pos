@@ -479,7 +479,9 @@ $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove
 let cat='ทั้งหมด', channel='store', cart=[], outMode=false;
 // เก็บตะกร้าไว้ในเครื่อง แอปหลุดเปิดใหม่ของยังอยู่
 try{const k=JSON.parse(localStorage.getItem('milktea_cart')||'null');if(k&&Array.isArray(k.cart)){cart=k.cart;channel=k.channel||'store'}}catch(e){}
-const priceOf=(m,ch)=>ch!=='store'&&m.ap&&m.ap[ch]!==''&&m.ap[ch]!=null?+m.ap[ch]:+m.price;
+// ราคาแอป: บวกค่า GP ให้หักแล้วได้เท่าหน้าร้าน (ปัดขึ้นเป็นบาท) · ถ้าตั้งราคาแอปเองในเมนู ใช้ราคานั้น
+const up=(x,ch)=>{const r=ch==='store'?0:+S.settings.gpRates[ch]||0;return x&&r>0&&r<100?Math.ceil(x/(1-r/100)-1e-9):x};
+const priceOf=(m,ch)=>ch!=='store'&&m.ap&&m.ap[ch]!==''&&m.ap[ch]!=null?+m.ap[ch]:up(+m.price,ch);
 function renderMenu(){
   $('#shopTitle').textContent=S.settings.shopName;
   // แท็บตามประเภทเครื่องดื่ม เรียงตามป้ายเมนู
@@ -522,17 +524,17 @@ function openItem(id){
   $('#miName').textContent=m.name;
   $('#miRec').open=false;$('#miRec').style.display=m.recipe?'':'none';$('#miRecTxt').textContent=m.recipe||'';
   $('#miSizeWrap').style.display=st.sizes.length>1?'':'none';
-  $('#miSize').innerHTML=st.sizes.map((s,i)=>`<button data-i="${i}">${esc(s.name)}${s.add?` +${s.add}`:''}</button>`).join('');
+  $('#miSize').innerHTML=st.sizes.map((s,i)=>`<button data-i="${i}">${esc(s.name)}${s.add?` +${up(+s.add,channel)}`:''}</button>`).join('');
   $('#miSweet').innerHTML=st.sweet.map(v=>`<button data-v="${v}">${v}%</button>`).join('');
   $('#miTopWrap').style.display=st.toppings.length?'':'none';
-  $('#miTop').innerHTML=st.toppings.map(t=>`<button class="tp" data-id="${t.id}" ${t.out?'disabled':''}>${(t.img||IMG[t.name])?`<img src="${t.img||IMG[t.name]}" alt="" decoding="async">`:''}${esc(t.name)} ${t.out?'(หมด)':+t.price?'+'+t.price:/^ไม่/.test(t.name)?'':'ฟรี'}</button>`).join('');
+  $('#miTop').innerHTML=st.toppings.map(t=>`<button class="tp" data-id="${t.id}" ${t.out?'disabled':''}>${(t.img||IMG[t.name])?`<img src="${t.img||IMG[t.name]}" alt="" decoding="async">`:''}${esc(t.name)} ${t.out?'(หมด)':+t.price?'+'+up(+t.price,channel):/^ไม่/.test(t.name)?'':'ฟรี'}</button>`).join('');
   $('#miNote').value='';
   $$('#miSize button').forEach(b=>b.onclick=()=>{cur.size=st.sizes[b.dataset.i];paintItem()});
   $$('#miSweet button').forEach(b=>b.onclick=()=>{cur.sweet=+b.dataset.v;paintItem()});
   $$('#miTop button').forEach(b=>b.onclick=()=>{const t=st.toppings.find(x=>x.id===b.dataset.id);const i=cur.tops.findIndex(x=>x.id===t.id);if(i>=0)cur.tops.splice(i,1);else{const x=t.name.replace(/^ไม่ใส่/,'');cur.tops=cur.tops.filter(o=>o.name.replace(/^ไม่ใส่/,'')!==x);if(t.name==='ไม่ใส่ Topping')cur.tops=[];else cur.tops=cur.tops.filter(o=>o.name!=='ไม่ใส่ Topping');cur.tops.push({id:t.id,name:t.name,price:+t.price})}paintItem()});
   paintItem();$('#mItem').classList.add('on');
 }
-const unitOf=l=>l.base+(l.size?+l.size.add:0)+l.tops.reduce((a,t)=>a+t.price,0);
+const unitOf=l=>l.base+up((l.size?+l.size.add:0)+l.tops.reduce((a,t)=>a+t.price,0),channel);
 function paintItem(){
   $$('#miSize button').forEach(b=>b.classList.toggle('on',S.settings.sizes[b.dataset.i]===cur.size));
   $$('#miSweet button').forEach(b=>b.classList.toggle('on',+b.dataset.v===cur.sweet));
