@@ -392,7 +392,7 @@ function sample(){
       ...g('ชาเขียวไต้หวัน',[['ชาเขียวมะลิไต้หวัน',20],['ชาเขียวสตรอเบอรี่',20],['ชาเขียวลิ้นจี่',20],['ชาเขียวองุ่น',20],['ชาเขียวเสาวรส',20],['ชาเขียวแอปเปิ้ล',20],['ชาเขียวกีวี่',20],['ชาเขียวส้ม',20],['ชาเขียวแคนตาลูป',20],['ชาเขียวพันซ์',20]]),
       ...g('ชาเขียวไทย',[['ชาเขียวนมสด',20],['ชาเขียวไทยมะนาว',20],['ชาเขียวไทยองุ่น',20],['ชาเขียวไทยเสาวรส',20],['ชาเขียวไทยแอปเปิ้ล',20],['ชาเขียวไทยกีวี่',20],['ชาเขียวไทยสตรอเบอรี่',20],['ชาเขียวไทยลิ้นจี่',20]]),
       ...g('ชาไทย',[['ชาไทย',20],['ชาดำเย็น',20],['ชาไทยมะนาว',20],['ชาไทยเสาวรส',20],['ชาไทยแอปเปิ้ล',20],['ชาไทยกีวี่',20],['ชาไทยสตรอเบอรี่',20],['ชาไทยลิ้นจี่',20]]),
-      ...g('อิตาเลี่ยนโซดา',[['มะนาวโซดา',25],['องุ่นโซดา',25],['เสาวรสโซดา',25],['แอปเปิ้ลโซดา',25],['กีวี่โซดา',25],['สตรอเบอรี่โซดา',25],['ลิ้นจี่โซดา',25],['แคนตาลูปโซดา',25],['พันซ์โซดา',25],['บลูฮาวายโซดา',25]]),
+      ...g('อิตาเลี่ยนโซดา',[['มะนาวโซดา',20],['องุ่นโซดา',20],['เสาวรสโซดา',20],['แอปเปิ้ลโซดา',20],['กีวี่โซดา',20],['สตรอเบอรี่โซดา',20],['ลิ้นจี่โซดา',20],['แคนตาลูปโซดา',20],['พันซ์โซดา',20],['บลูฮาวายโซดา',20]]),
       ...g('นมสด',[['นมสด',25],['นมชมพู',25],['นมสดแคนตาลูป',30],['นมสดคาปูชิโน่',30],['นมสดเผือก',30],['นมสดโกโก้',30],['นมสดช็อคโกแลต',30],['นมสดสตรอเบอรี่',30],['นมสดกล้วย',30]]),
       ...g('บราวน์ชูก้า',[['นมสดบราวน์ชูก้า',25],['ชานมบราวน์ชูก้า',25],['ชาไทยบราวน์ชูก้า',25],['ชาเขียวนมสดบราวน์ชูก้า',25]]),
       ...g('กาแฟและโกโก้',[['อเมริกาโน่',25],['เอสเปรสโซ่',30],['คาปูชิโน่',30],['มอคค่า',30],['ลาเต้',30],['โกโก้เย็น',30],['ช็อคโกแลต',30],['โอวัลติน',30]]),
@@ -436,7 +436,7 @@ if(!S.settings.promptpay){S.settings.promptpay='004999253515869';recNew=true}
 if(!S.settings.mig20261108whip){S.settings.mig20261108whip=1;if(!S.settings.toppings.some(t=>t.name==='วิปครีม'))S.settings.toppings.push({id:uid(),name:'วิปครีม',price:10});recNew=true}
 if(!S.settings.mig20261108o7763){S.settings.mig20261108o7763=1;const o=S.orders.find(o=>o.id==='mw7i9pf72vsi');if(o&&o.total===90&&!o.items.some(i=>i.name==='ชานมไต้หวัน')){o.items.push({name:'ชานมไต้หวัน',size:'ปกติ',sweet:100,tops:['ไข่มุก'],note:'',unit:30,qty:1});o.total=120;o.gp=Math.round(120*o.gpRate)/100;o.net=120-o.gp}recNew=true}
 if(!S.settings.mig20261108brw){S.settings.mig20261108brw=1;if(!S.menu.some(m=>m.name==='บราวนี่ชิ้น'))S.menu.push({id:uid(),name:'บราวนี่ชิ้น',cat:'ขนม',price:20,ap:{}});recNew=true}
-if(!S.settings.mig20261109soda){S.settings.mig20261109soda=1;[['แดงมะนาวโซดา',25],['น้ำผึ้งมะนาวแดงโซดา',25]].forEach(([n,pr])=>{if(!S.menu.some(m=>m.name===n)){const i=S.menu.map(m=>m.cat).lastIndexOf('อิตาเลี่ยนโซดา');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:n,cat:'อิตาเลี่ยนโซดา',price:pr,ap:{}})}});recNew=true}
+if(!S.settings.mig20261109it20){S.settings.mig20261109it20=1;const IT20=["มะนาวโซดา", "องุ่นโซดา", "เสาวรสโซดา", "แอปเปิ้ลโซดา", "กีวี่โซดา", "สตรอเบอรี่โซดา", "ลิ้นจี่โซดา", "แคนตาลูปโซดา", "พันซ์โซดา", "บลูฮาวายโซดา"];S.menu.forEach(m=>{if(IT20.includes(m.name)&&m.price===25)m.price=20});recNew=true} if(!S.settings.mig20261109soda){S.settings.mig20261109soda=1;[['แดงมะนาวโซดา',25],['น้ำผึ้งมะนาวแดงโซดา',25]].forEach(([n,pr])=>{if(!S.menu.some(m=>m.name===n)){const i=S.menu.map(m=>m.cat).lastIndexOf('อิตาเลี่ยนโซดา');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:n,cat:'อิตาเลี่ยนโซดา',price:pr,ap:{}})}});recNew=true}
 if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
 function migrate(){
   if(!S.settings.gpRates)S.settings.gpRates={lineman:S.settings.gp??30,grab:30,shopee:30,robinhood:30};
@@ -821,14 +821,30 @@ async function bleSend(b){
     await new Promise(r=>setTimeout(r,8));
   }
 }
-async function usbSend(b){
-  if(!PR.usb){const k=await navigator.usb.getDevices();PR.usb=k[0]||await navigator.usb.requestDevice({filters:[]})}
-  const d=PR.usb;if(!d.opened)await d.open();if(!d.configuration)await d.selectConfiguration(1);
-  let ifc,ep;
-  for(const i of d.configuration.interfaces)for(const a of i.alternates){const e=a.endpoints.find(e=>e.direction==='out'&&e.type==='bulk');if(e&&!ep){ifc=i;ep=e}}
-  if(!ep)throw new Error('ไม่เจอช่องส่งข้อมูล USB');
-  if(!ifc.claimed)await d.claimInterface(ifc.interfaceNumber);
-  for(let i=0;i<b.length;i+=4096)await d.transferOut(ep.endpointNumber,b.slice(i,i+4096));
+const usbIsPrinter=d=>{try{for(const c of d.configurations||[])for(const i of c.interfaces)for(const a of i.alternates){if(a.interfaceClass===7)return 2;if([1,2,3,8,9,10,14,224].includes(a.interfaceClass))continue;if(a.endpoints.some(e=>e.direction==='out'&&e.type==='bulk'))return 1}}catch(e){}return 0};
+const usbPick=l=>l.filter(usbIsPrinter).sort((a,b)=>usbIsPrinter(b)-usbIsPrinter(a))[0]||null;
+const usbNoDev='แท็บเล็ตมองไม่เห็นเครื่องพิมพ์ — เช็กสาย/เปิดเครื่องพิมพ์ ถ้าต่อผ่าน hub ลองถอดสายชาร์จออกแล้วลองใหม่';
+if(navigator.usb){
+  navigator.usb.addEventListener('connect',e=>{if(usbIsPrinter(e.device)){PR.usb=e.device;if((S.settings.printMode||'browser')==='usb')toast('เจอเครื่องพิมพ์แล้ว: '+(e.device.productName||'USB'))}});
+  navigator.usb.addEventListener('disconnect',e=>{if(PR.usb===e.device)PR.usb=null});
+}
+async function usbSend(b,again){
+  const k=await navigator.usb.getDevices();
+  if(!PR.usb||!k.includes(PR.usb))PR.usb=usbPick(k);
+  if(!PR.usb){try{PR.usb=await navigator.usb.requestDevice({filters:[]})}catch(e){throw new Error(usbNoDev)}}
+  const d=PR.usb;
+  try{
+    if(!d.opened)await d.open();if(!d.configuration)await d.selectConfiguration(1);
+    let ifc,ep;
+    for(const i of d.configuration.interfaces)for(const a of i.alternates){const e=a.endpoints.find(e=>e.direction==='out'&&e.type==='bulk');if(e&&!ep){ifc=i;ep=e}}
+    if(!ep)throw new Error('อุปกรณ์ที่เลือกไม่ใช่เครื่องพิมพ์ กด "เชื่อม" แล้วเลือกชื่อเครื่องพิมพ์ใหม่');
+    if(!ifc.claimed)await d.claimInterface(ifc.interfaceNumber);
+    for(let i=0;i<b.length;i+=4096)await d.transferOut(ep.endpointNumber,b.slice(i,i+4096));
+  }catch(e){
+    try{if(d.opened)await d.close()}catch(_){}
+    PR.usb=null;if(!again&&!/ไม่ใช่เครื่องพิมพ์/.test(e.message||''))return usbSend(b,true);
+    throw e;
+  }
 }
 const b64=b=>{let s='';for(let i=0;i<b.length;i+=8192)s+=String.fromCharCode(...b.subarray(i,i+8192));return btoa(s)};
 async function doPrint(kick){
@@ -849,7 +865,7 @@ $('#prConnect').onclick=async()=>{
   const m=$('#sPrinter').value;PR.dev=PR.ch=PR.usb=null;
   try{
     if(m==='ble'){if(!navigator.bluetooth)throw new Error('ใช้ Chrome บน Android');PR.dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[0x18f0,0xff00,0xffe0,0xfee7,0xae30,'e7810a71-73ae-499d-8c15-faa9aef0c3f2','49535343-fe7d-4ae5-8fa9-9fafd205e455']});await bleConnect();toast('เชื่อมแล้ว: '+(PR.dev.name||'เครื่องพิมพ์'))}
-    else if(m==='usb'){if(!navigator.usb)throw new Error('ใช้ Chrome');PR.usb=await navigator.usb.requestDevice({filters:[]});toast('เชื่อมแล้ว: '+(PR.usb.productName||'เครื่องพิมพ์'))}
+    else if(m==='usb'){if(!navigator.usb)throw new Error('ใช้ Chrome');let d;try{d=await navigator.usb.requestDevice({filters:[]})}catch(e){throw new Error(usbNoDev)}if(!usbIsPrinter(d))throw new Error('"'+(d.productName||'อุปกรณ์นี้')+'" ไม่ใช่เครื่องพิมพ์ กดเชื่อมแล้วเลือกใหม่');PR.usb=d;toast('เชื่อมแล้ว: '+(d.productName||'เครื่องพิมพ์'))}
     else if(m==='rawbt')toast('เชื่อมเครื่องพิมพ์ในแอป RawBT แล้วกดทดสอบพิมพ์ได้เลยค่ะ');
     else toast('โหมดคอมพิวเตอร์ เลือกเครื่องพิมพ์ตอนหน้าต่างพิมพ์ขึ้นค่ะ');
   }catch(e){toast('เชื่อมไม่ได้: '+(e.message||e))}
