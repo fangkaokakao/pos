@@ -387,7 +387,7 @@ function sample(){
       ...g('ชาเขียวไทย',[['ชาเขียวนมสด',20],['ชาเขียวไทยมะนาว',20],['ชาเขียวไทยองุ่น',20],['ชาเขียวไทยเสาวรส',20],['ชาเขียวไทยแอปเปิ้ล',20],['ชาเขียวไทยกีวี่',20],['ชาเขียวไทยสตรอเบอรี่',20],['ชาเขียวไทยลิ้นจี่',20]]),
       ...g('ชาไทย',[['ชาไทย',20],['ชาดำเย็น',20],['ชาไทยมะนาว',20],['ชาไทยเสาวรส',20],['ชาไทยแอปเปิ้ล',20],['ชาไทยกีวี่',20],['ชาไทยสตรอเบอรี่',20],['ชาไทยลิ้นจี่',20]]),
       ...g('อิตาเลี่ยนโซดา',[['มะนาวโซดา',25],['องุ่นโซดา',25],['เสาวรสโซดา',25],['แอปเปิ้ลโซดา',25],['กีวี่โซดา',25],['สตรอเบอรี่โซดา',25],['ลิ้นจี่โซดา',25],['แคนตาลูปโซดา',25],['พันซ์โซดา',25],['บลูฮาวายโซดา',25]]),
-      ...g('นมสด',[['นมสด',25],['นมสดแคนตาลูป',30],['นมสดคาปูชิโน่',30],['นมสดเผือก',30],['นมสดโกโก้',30],['นมสดช็อคโกแลต',30],['นมสดสตรอเบอรี่',30],['นมสดกล้วย',30]]),
+      ...g('นมสด',[['นมสด',25],['นมชมพู',25],['นมสดแคนตาลูป',30],['นมสดคาปูชิโน่',30],['นมสดเผือก',30],['นมสดโกโก้',30],['นมสดช็อคโกแลต',30],['นมสดสตรอเบอรี่',30],['นมสดกล้วย',30]]),
       ...g('บราวน์ชูก้า',[['นมสดบราวน์ชูก้า',25],['ชานมบราวน์ชูก้า',25],['ชาไทยบราวน์ชูก้า',25],['ชาเขียวนมสดบราวน์ชูก้า',25]]),
       ...g('กาแฟและโกโก้',[['อเมริกาโน่',25],['เอสเปรสโซ่',30],['คาปูชิโน่',30],['มอคค่า',30],['ลาเต้',30],['โกโก้เย็น',30],['ช็อคโกแลต',30],['โอวัลติน',30]]),
       ...g('เลิฟซ่า',[['เลิฟซ่าลิ้นจี่',35],['เลิฟซ่าฮันนี่เลมอน',35],['เลิฟซ่าองุ่นเคียวโฮ',35]])
@@ -425,6 +425,7 @@ let recNew=false;
 if(!S.settings.mig20261108r){S.settings.mig20261108r=1;if(!S.settings.recipePrep)S.settings.recipePrep=RECIPE_PREP;
   S.menu.forEach(m=>{if(!m.recipe&&RECIPES[m.name])m.recipe=RECIPES[m.name]});recNew=true}
 if(!S.settings.promptpay){S.settings.promptpay='004999253515869';recNew=true}
+if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
 function migrate(){
   if(!S.settings.gpRates)S.settings.gpRates={lineman:S.settings.gp??30,grab:30,shopee:30,robinhood:30};
   delete S.settings.gp;
@@ -1056,7 +1057,7 @@ if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
       'ชาไทยมะนาว':'Té tailandés con limón','ชาไทยเสาวรส':'Té tailandés de maracuyá','ชาไทยแอปเปิ้ล':'Té tailandés de manzana','ชาไทยกีวี่':'Té tailandés de kiwi',
       'ชาไทยสตรอเบอรี่':'Té tailandés de fresa','ชาไทยลิ้นจี่':'Té tailandés de lichi','มะนาวโซดา':'Soda de limón','องุ่นโซดา':'Soda de uva','เสาวรสโซดา':'Soda de maracuyá',
       'แอปเปิ้ลโซดา':'Soda de manzana','กีวี่โซดา':'Soda de kiwi','สตรอเบอรี่โซดา':'Soda de fresa','ลิ้นจี่โซดา':'Soda de lichi','แคนตาลูปโซดา':'Soda de melón',
-      'พันซ์โซดา':'Soda ponche','บลูฮาวายโซดา':'Soda Blue Hawaii','นมสด':'Leche fresca','นมสดแคนตาลูป':'Leche de melón','นมสดคาปูชิโน่':'Leche capuchino',
+      'พันซ์โซดา':'Soda ponche','บลูฮาวายโซดา':'Soda Blue Hawaii','นมสด':'Leche fresca','นมชมพู':'Leche rosada','นมสดแคนตาลูป':'Leche de melón','นมสดคาปูชิโน่':'Leche capuchino',
       'นมสดเผือก':'Leche de taro','นมสดโกโก้':'Leche de cacao','นมสดช็อคโกแลต':'Leche de chocolate','นมสดสตรอเบอรี่':'Leche de fresa','นมสดกล้วย':'Leche de plátano',
       'นมสดบราวน์ชูก้า':'Leche con azúcar moreno','ชานมบราวน์ชูก้า':'Té con leche y azúcar moreno','ชาไทยบราวน์ชูก้า':'Té tailandés con azúcar moreno',
       'ชาเขียวนมสดบราวน์ชูก้า':'Té verde con leche y azúcar moreno','อเมริกาโน่':'Americano','เอสเปรสโซ่':'Espresso','คาปูชิโน่':'Capuchino','มอคค่า':'Moca',
