@@ -826,6 +826,8 @@ function renderOrders(){
 
 /* ---------- กะ / นับเงิน ---------- */
 const shiftCash=sh=>S.orders.filter(o=>!o.void&&o.shiftId===sh.id&&o.pay==='cash').reduce((a,o)=>a+o.total,0);
+const shiftCups=sh=>S.orders.filter(o=>!o.void&&o.shiftId===sh.id).reduce((a,o)=>a+o.items.reduce((b,i)=>b+i.qty,0),0);
+const sealTxt=(used,cups)=>{const d=used-cups;return d===0?'ตรงกับแก้วที่ขาย':d>0?`ฝาหายไป ${d} แผ่น (ใช้มากกว่าแก้วที่ขาย)`:`ฝาใช้น้อยกว่าแก้วที่ขาย ${-d} แผ่น`};
 const shiftSum=sh=>{
   const inn=sh.moves.filter(m=>m.type==='in').reduce((a,m)=>a+m.amt,0),out=sh.moves.filter(m=>m.type==='out').reduce((a,m)=>a+m.amt,0);
   const cash=shiftCash(sh);return {cash,inn,out,expected:sh.float+cash+inn-out};
@@ -841,12 +843,14 @@ function openShift(){
     box.innerHTML=`<h2>เปิดกะ</h2>
       <label>ชื่อคนขาย</label><input id="shStaff" value="${esc((S.shifts.at(-1)||{}).staff||'')}">
       <label>เงินทอนตั้งต้นในลิ้นชัก (บาท)</label><input id="shFloat" type="number" inputmode="numeric" placeholder="เช่น 500">
+      <label>นับฝาซีนตอนเปิดกะ (แผ่น)</label><input id="shSeal" type="number" inputmode="numeric" placeholder="เช่น 300">
       <div class="row" style="margin-top:14px"><button class="ghost" id="shClose" style="flex:0 0 auto">กลับ</button><button class="big" id="shOpen">เปิดกะ</button></div>`;
     $('#shOpen').onclick=()=>{
       const staff=$('#shStaff').value.trim(),fl=$('#shFloat').value;
       if(!staff){toast('ใส่ชื่อคนขาย');return}
       if(fl===''){toast('ใส่เงินทอนตั้งต้น (ไม่มีใส่ 0)');return}
-      S.shift={id:uid(),staff,float:+fl,openAt:Date.now(),moves:[]};
+      const se=$('#shSeal').value;if(se===''){toast('ใส่จำนวนฝาซีนที่นับได้');return}
+      S.shift={id:uid(),staff,float:+fl,sealOpen:+se,openAt:Date.now(),moves:[]};
       if(!save()){S.shift=null;return}
       $('#mShift').classList.remove('on');renderShiftBtn();toast('เปิดกะแล้ว');
     };
@@ -858,12 +862,14 @@ function openShift(){
       <div class="kv"><span>เงินเข้าอื่น</span><b>${baht(s.inn)}</b></div>
       <div class="kv"><span>เงินออก</span><b>-${baht(s.out)}</b></div>
       <div class="kv" style="font-size:18px"><span>ควรมีในลิ้นชัก</span><b>${baht(s.expected)}</b></div>
+      ${sh.sealOpen!=null?`<div class="kv"><span>ฝาซีนตอนเปิดกะ</span><b>${sh.sealOpen} แผ่น</b></div><div class="kv"><span>ขายไปแล้ว</span><b>${shiftCups(sh)} แก้ว</b></div>`:''}
       ${sh.moves.length?'<div style="font-size:13px;color:var(--muted);margin:6px 0">'+sh.moves.map(m=>`${tstr(m.ts)} ${m.type==='in'?'เข้า':'ออก'} ${baht(m.amt)} ${esc(m.note)}`).join('<br>')+'</div>':''}
       <label>เงินเข้า/ออกลิ้นชัก (เช่น ซื้อน้ำแข็ง)</label>
       <div class="row"><input id="mvAmt" type="number" inputmode="numeric" placeholder="บาท" style="max-width:110px"><input id="mvNote" placeholder="เรื่องอะไร"></div>
       <div class="row" style="margin-top:6px"><button class="ghost" id="mvIn">+ เงินเข้า</button><button class="ghost" id="mvOut">− เงินออก</button></div>
       <label>ปิดกะ: นับเงินจริงในลิ้นชัก (บาท)</label><input id="shCount" type="number" inputmode="numeric">
       <div id="shDiff" style="font-weight:700;margin-top:6px"></div>
+      ${sh.sealOpen!=null?'<label>ปิดกะ: นับฝาซีนที่เหลือ (แผ่น)</label><input id="shSealEnd" type="number" inputmode="numeric"><div id="shSealDiff" style="font-weight:700;margin-top:6px"></div>':''}
       <div class="row" style="margin-top:14px"><button class="ghost" id="shClose" style="flex:0 0 auto">กลับ</button><button class="big" id="shEnd" disabled>ปิดกะ + สำรองข้อมูล</button></div>`;
     const mv=type=>{
       const a=+$('#mvAmt').value,n=$('#mvNote').value.trim();
@@ -872,16 +878,21 @@ function openShift(){
       sh.moves.push({ts:Date.now(),type,amt:a,note:n});save();openShift();
     };
     $('#mvIn').onclick=()=>mv('in');$('#mvOut').onclick=()=>mv('out');
+    const cups=shiftCups(sh),hasSeal=sh.sealOpen!=null,canEnd=()=>{$('#shEnd').disabled=$('#shCount').value===''||(hasSeal&&$('#shSealEnd').value==='')};
+    if(hasSeal)$('#shSealEnd').oninput=()=>{const v=$('#shSealEnd').value,u=sh.sealOpen-(+v);canEnd();
+      $('#shSealDiff').textContent=v===''?'':`ใช้ฝา ${u} แผ่น · ขาย ${cups} แก้ว · ${sealTxt(u,cups)}`;$('#shSealDiff').style.color=v!==''&&u>cups?'var(--danger)':''};
     $('#shCount').oninput=()=>{
       const v=$('#shCount').value,d=+v-s.expected;
-      $('#shEnd').disabled=v==='';
+      canEnd();
       $('#shDiff').textContent=v===''?'':d===0?'ตรงพอดี':d>0?`เกิน ${baht(d)}`:`ขาด ${baht(-d)}`;
       $('#shDiff').style.color=d<0?'var(--danger)':'';
     };
     $('#shEnd').onclick=()=>{
       const c=+$('#shCount').value,d=c-s.expected;
       if(d!==0&&!confirm(`เงิน${d>0?'เกิน':'ขาด'} ${baht(Math.abs(d))} ยืนยันปิดกะ?`))return;
-      S.shifts.push({...sh,closeAt:Date.now(),cashSales:s.cash,in:s.inn,out:s.out,expected:s.expected,counted:c,diff:d});
+      const seal=hasSeal?{sealClose:+$('#shSealEnd').value,sealUsed:sh.sealOpen-(+$('#shSealEnd').value),cups}:{};
+      if(hasSeal&&seal.sealUsed!==cups&&!confirm(`ใช้ฝา ${seal.sealUsed} แผ่น ขาย ${cups} แก้ว · ${sealTxt(seal.sealUsed,cups)} ยืนยันปิดกะ?`))return;
+      S.shifts.push({...sh,...seal,closeAt:Date.now(),cashSales:s.cash,in:s.inn,out:s.out,expected:s.expected,counted:c,diff:d});
       S.shift=null;save();downloadBackup();
       $('#mShift').classList.remove('on');renderShiftBtn();toast('ปิดกะแล้ว โหลดไฟล์สำรองให้แล้ว');
     };
@@ -919,7 +930,8 @@ function renderReport(){
   $('#repCh').innerHTML=`<table><thead><tr><th>ช่องทาง</th><th class="n">บิล</th><th class="n">ยอดขาย</th><th class="n">GP</th><th class="n">ร้านได้</th><th class="n">เฉลี่ย/บิล</th></tr></thead><tbody>${CH.map(ch=>{const v=r.ch[ch.k];return `<tr><td><b style="color:${ch.c}">${ch.n}</b></td><td class="n">${v.bills}</td><td class="n">${baht(v.all)}</td><td class="n">${v.gp?'-'+baht(v.gp):'-'}</td><td class="n">${baht(v.net)}</td><td class="n">${v.bills?baht(v.all/v.bills):'-'}</td></tr>`}).join('')}</tbody></table>`;
   const shs=S.shifts.filter(s=>inRange({ts:s.openAt}));
   if(S.shift)shs.push({...S.shift,...(()=>{const s=shiftSum(S.shift);return {cashSales:s.cash,in:s.inn,out:s.out,expected:s.expected}})()});
-  $('#repShift').innerHTML=shs.length?`<table><thead><tr><th>คนขาย</th><th>เวลา</th><th class="n">ตั้งต้น</th><th class="n">ขายสด</th><th class="n">เข้า</th><th class="n">ออก</th><th class="n">ควรมี</th><th class="n">นับได้</th><th class="n">ต่าง</th></tr></thead><tbody>${shs.map(s=>`<tr><td>${esc(s.staff)}</td><td>${dkey(s.openAt).slice(5)} ${tstr(s.openAt)}–${s.closeAt?tstr(s.closeAt):'ยังเปิด'}</td><td class="n">${baht(s.float)}</td><td class="n">${baht(s.cashSales)}</td><td class="n">${baht(s.in)}</td><td class="n">${baht(s.out)}</td><td class="n">${baht(s.expected)}</td><td class="n">${s.closeAt?baht(s.counted):'-'}</td><td class="n" style="${s.diff<0?'color:var(--danger)':''}">${s.closeAt?(s.diff>0?'+':'')+baht(s.diff):'-'}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มีกะในช่วงนี้</div>';
+  $('#repShift').innerHTML=shs.length?`<table><thead><tr><th>คนขาย</th><th>เวลา</th><th class="n">ตั้งต้น</th><th class="n">ขายสด</th><th class="n">เข้า</th><th class="n">ออก</th><th class="n">ควรมี</th><th class="n">นับได้</th><th class="n">ต่าง</th><th class="n">ฝาซีน เปิด/ปิด</th><th class="n">ใช้ฝา</th><th class="n">แก้วขาย</th><th class="n">ฝาต่าง</th></tr></thead><tbody>${shs.map(s=>`<tr><td>${esc(s.staff)}</td><td>${dkey(s.openAt).slice(5)} ${tstr(s.openAt)}–${s.closeAt?tstr(s.closeAt):'ยังเปิด'}</td><td class="n">${baht(s.float)}</td><td class="n">${baht(s.cashSales)}</td><td class="n">${baht(s.in)}</td><td class="n">${baht(s.out)}</td><td class="n">${baht(s.expected)}</td><td class="n">${s.closeAt?baht(s.counted):'-'}</td><td class="n" style="${s.diff<0?'color:var(--danger)':''}">${s.closeAt?(s.diff>0?'+':'')+baht(s.diff):'-'}</td>${(()=>{const c=s.cups!=null?s.cups:shiftCups(s),u=s.sealUsed,d=u-c;
+    return s.sealOpen==null?'<td class="n">-</td><td class="n">-</td><td class="n">'+c+'</td><td class="n">-</td>':`<td class="n">${s.sealOpen}/${s.closeAt?s.sealClose:'-'}</td><td class="n">${s.closeAt?u:'-'}</td><td class="n">${c}</td><td class="n" style="${s.closeAt&&d>0?'color:var(--danger)':''}">${s.closeAt?(d>0?'+':'')+d:'-'}</td>`})()}</tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มีกะในช่วงนี้</div>';
   const top=Object.entries(r.top).sort((a,b)=>b[1].qty-a[1].qty);
   $('#repTop').innerHTML=top.length?`<table><thead><tr><th>เมนู</th><th class="n">แก้ว</th><th class="n">ยอด</th></tr></thead><tbody>${top.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${v.qty}</td><td class="n">${baht(v.amt)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ไม่มียอดในช่วงนี้</div>';
 }
@@ -1016,7 +1028,7 @@ if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
       'ยอดแอปรวม':'Ventas por apps','GP แอปรวม':'Comisión apps','จำนวนแก้ว':'Vasos vendidos','ยกเลิก (':'Anulados (','บิล)':'tickets)',
       'แยกตามช่องทาง':'Por canal','กะ / นับเงิน':'Turnos / caja','เมนูขายดี':'Más vendidos','ช่องทาง':'Canal','บิล':'Ticket','ยอดขาย':'Ventas','GP':'Comisión',
       'ร้านได้':'Neto','เฉลี่ย/บิล':'Media/ticket','คนขาย':'Vendedor','เวลา':'Hora','ตั้งต้น':'Fondo inicial','ขายสด':'Ventas efectivo','เข้า':'Entradas','ออก':'Salidas',
-      'ควรมี':'Debería haber','นับได้':'Contado','ต่าง':'Diferencia','ยังเปิด':'abierto','ไม่มีกะในช่วงนี้':'No hay turnos en este periodo',
+      'ควรมี':'Debería haber','ฝาซีน เปิด/ปิด':'Tapas sellado ini/fin','ใช้ฝา':'Tapas usadas','แก้วขาย':'Vasos vendidos','ฝาต่าง':'Dif. tapas','นับได้':'Contado','ต่าง':'Diferencia','ยังเปิด':'abierto','ไม่มีกะในช่วงนี้':'No hay turnos en este periodo',
       'เมนู':'Bebida','แก้ว':'Vasos','ยอด':'Importe','ไม่มียอดในช่วงนี้':'No hay ventas en este periodo','รายการ':'Productos','จ่าย':'Pago',
       'ยังไม่มีออเดอร์วันนี้':'Aún no hay pedidos este día','ยกเลิก':'Anulado','หน้าร้าน':'En tienda','โหลดใหม่':'Actualizar','ร้านส่งล่าสุด':'envío',
       'ลูกค้ายกเลิก':'cancelado por el cliente','กดผิด':'error al marcar','ทำผิดเมนู':'bebida equivocada','ปกติ':'normal','เพิ่มไซส์':'tamaño grande',
