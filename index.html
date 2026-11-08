@@ -381,7 +381,7 @@ function sample(){
     settings:{shopName:'Nani Cha',promptpay:'',gpRates:{lineman:30,grab:30,shopee:30,robinhood:30},footer:'ขอบคุณที่มาอุดหนุนนะคะ',autoPrint:1,
       sizes:[{name:'ปกติ',add:0},{name:'เพิ่มไซส์',add:5}],
       sweet:[0,25,50,75,100],
-      toppings:[{id:uid(),name:'ไข่มุก',price:0},{id:uid(),name:'ไข่มุกลาวา',price:10},{id:uid(),name:'บุก',price:10},{id:uid(),name:'ฟรุตสลัด',price:5},{id:uid(),name:'เยลลี่แอปเปิ้ล',price:5},{id:uid(),name:'บราวนี่ cube',price:15}]},
+      toppings:[{id:uid(),name:'ไข่มุก',price:0},{id:uid(),name:'ไข่มุกลาวา',price:10},{id:uid(),name:'บุก',price:10},{id:uid(),name:'ฟรุตสลัด',price:5},{id:uid(),name:'เยลลี่แอปเปิ้ล',price:5},{id:uid(),name:'บราวนี่ cube',price:15},{id:uid(),name:'วิปครีม',price:10}]},
     menu:[
       ...g('ชานมไต้หวัน',[['ชานมไต้หวัน',20],['ชานมแคนตาลูป',25],['ชานมกล้วย',25],['ชานมคาปูชิโน่',25],['ชานมเผือก',25],['ชานมโกโก้',25],['ชานมช็อคโกแลต',25],['ชานมสตรอเบอรี่',25],['ชานมลาเต้',25],['ชานมเอสเปรสโซ่',25]]),
       ...g('ชาเขียวไต้หวัน',[['ชาเขียวมะลิไต้หวัน',20],['ชาเขียวสตรอเบอรี่',20],['ชาเขียวลิ้นจี่',20],['ชาเขียวองุ่น',20],['ชาเขียวเสาวรส',20],['ชาเขียวแอปเปิ้ล',20],['ชาเขียวกีวี่',20],['ชาเขียวส้ม',20],['ชาเขียวแคนตาลูป',20],['ชาเขียวพันซ์',20]]),
@@ -428,6 +428,7 @@ if(!S.settings.mig20261108r){S.settings.mig20261108r=1;if(!S.settings.recipePrep
   S.menu.forEach(m=>{if(!m.recipe&&RECIPES[m.name])m.recipe=RECIPES[m.name]});recNew=true}
 if(!S.settings.promptpay){S.settings.promptpay='004999253515869';recNew=true}
 // แก้บิล LINE MAN #7763 (8 พ.ย.) แอดมินกดขาดชานมไต้หวัน 1 แก้ว — แก้ครั้งเดียว
+if(!S.settings.mig20261108whip){S.settings.mig20261108whip=1;if(!S.settings.toppings.some(t=>t.name==='วิปครีม'))S.settings.toppings.push({id:uid(),name:'วิปครีม',price:10});recNew=true}
 if(!S.settings.mig20261108o7763){S.settings.mig20261108o7763=1;const o=S.orders.find(o=>o.id==='mw7i9pf72vsi');if(o&&o.total===90&&!o.items.some(i=>i.name==='ชานมไต้หวัน')){o.items.push({name:'ชานมไต้หวัน',size:'ปกติ',sweet:100,tops:['ไข่มุก'],note:'',unit:30,qty:1});o.total=120;o.gp=Math.round(120*o.gpRate)/100;o.net=120-o.gp}recNew=true}
 if(!S.settings.mig20261108brw){S.settings.mig20261108brw=1;if(!S.menu.some(m=>m.name==='บราวนี่ชิ้น'))S.menu.push({id:uid(),name:'บราวนี่ชิ้น',cat:'ขนม',price:20,ap:{}});recNew=true}
 if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
@@ -1066,7 +1067,7 @@ if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
       'ชาไทยมะนาว':'Té tailandés con limón','ชาไทยเสาวรส':'Té tailandés de maracuyá','ชาไทยแอปเปิ้ล':'Té tailandés de manzana','ชาไทยกีวี่':'Té tailandés de kiwi',
       'ชาไทยสตรอเบอรี่':'Té tailandés de fresa','ชาไทยลิ้นจี่':'Té tailandés de lichi','มะนาวโซดา':'Soda de limón','องุ่นโซดา':'Soda de uva','เสาวรสโซดา':'Soda de maracuyá',
       'แอปเปิ้ลโซดา':'Soda de manzana','กีวี่โซดา':'Soda de kiwi','สตรอเบอรี่โซดา':'Soda de fresa','ลิ้นจี่โซดา':'Soda de lichi','แคนตาลูปโซดา':'Soda de melón',
-      'พันซ์โซดา':'Soda ponche','บลูฮาวายโซดา':'Soda Blue Hawaii','นมสด':'Leche fresca','นมชมพู':'Leche rosada','บราวนี่ชิ้น':'Brownie (pieza)','นมสดแคนตาลูป':'Leche de melón','นมสดคาปูชิโน่':'Leche capuchino',
+      'พันซ์โซดา':'Soda ponche','บลูฮาวายโซดา':'Soda Blue Hawaii','นมสด':'Leche fresca','นมชมพู':'Leche rosada','บราวนี่ชิ้น':'Brownie (pieza)','วิปครีม':'Nata montada','นมสดแคนตาลูป':'Leche de melón','นมสดคาปูชิโน่':'Leche capuchino',
       'นมสดเผือก':'Leche de taro','นมสดโกโก้':'Leche de cacao','นมสดช็อคโกแลต':'Leche de chocolate','นมสดสตรอเบอรี่':'Leche de fresa','นมสดกล้วย':'Leche de plátano',
       'นมสดบราวน์ชูก้า':'Leche con azúcar moreno','ชานมบราวน์ชูก้า':'Té con leche y azúcar moreno','ชาไทยบราวน์ชูก้า':'Té tailandés con azúcar moreno',
       'ชาเขียวนมสดบราวน์ชูก้า':'Té verde con leche y azúcar moreno','อเมริกาโน่':'Americano','เอสเปรสโซ่':'Espresso','คาปูชิโน่':'Capuchino','มอคค่า':'Moca',
