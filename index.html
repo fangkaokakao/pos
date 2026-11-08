@@ -405,7 +405,7 @@ function sample(){
 const VIEW=/[?&]view\b/.test(location.search);
 let TR=t=>t; // แปลข้อความ (โหมดดูภาษาสเปนจะตั้งให้)
 let S;
-if(VIEW){try{S=JSON.parse(sessionStorage.getItem('nanicha_view'))}catch(e){}if(!S||!S.menu){location.replace('view.html');throw 0}}
+if(VIEW){try{S=JSON.parse(sessionStorage.getItem('nanicha_view'))}catch(e){}if(!S||!S.menu){location.replace('view.html'+location.hash);throw 0}}
 else try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.menu)S=sample();
 else if(S.menu.some(m=>m.name==='ชาพีช')&&S.menu.length===8){const n=sample();S.menu=n.menu;S.settings.sizes=n.settings.sizes;S.settings.toppings=n.settings.toppings;if(S.settings.shopName==='ร้านชานม')S.settings.shopName=n.settings.shopName;}
@@ -1079,7 +1079,7 @@ $('#restore').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(
 renderChan();renderMenu();renderCart();renderShiftBtn();
 if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
   const b=document.createElement('button');b.className='shiftbtn';b.textContent='โหลดใหม่'+(S.syncedAt?' · ร้านส่งล่าสุด '+dkey(S.syncedAt).slice(5).split('-').reverse().join('/')+' '+tstr(S.syncedAt):'');
-  b.onclick=()=>location.replace('view.html');$('#shiftBtn').after(b);
+  b.onclick=()=>location.replace('view.html'+location.hash);$('#shiftBtn').after(b);
   // หลังบ้าน: ค่าเริ่มต้นภาษาไทย (8 พ.ย. พี่สั่ง) ปุ่ม Español/ภาษาไทย สลับได้ จำต่อเครื่อง · v2 = ล้างค่าสเปนที่ค้างจากค่าเริ่มต้นเก่า
   let lang='th';try{lang=localStorage.getItem('nanicha_lang2')||'th'}catch(e){}
   const lb=document.createElement('button');lb.className='shiftbtn';lb.textContent=lang==='es'?'ภาษาไทย':'Español';
