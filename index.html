@@ -464,6 +464,11 @@ const save=()=>{if(VIEW)return true;try{localStorage.setItem(KEY,JSON.stringify(
   S.orders=S.orders.filter(o=>o.ts>=T0);S.shifts=S.shifts.filter(h=>h.openAt>=T0);
   if(S.shift&&S.shift.openAt<T0)S.shift=null;
   if(S.orders.length+S.shifts.length+(S.shift?1:0)<n){save();try{localStorage.removeItem('milktea_cart')}catch(e){}}}
+// 8 พ.ย.: บิล LINE MAN 11:30 ติดกะทดลองค้างจาก 7 พ.ย. → ย้ายเข้ากะจ้ะเอ๋ (ขาย 71 แก้ว)
+if(!S.settings.fix20261108relink){S.settings.fix20261108relink=1;
+  const o=S.orders.find(x=>x.id==='mw7c46bzc1y1'),h=S.shifts.find(x=>x.id==='mw7cpap5155m');
+  if(o&&o.shiftId==='mw6dqlujat12')o.shiftId='mw7cpap5155m';
+  if(h)h.cups=71;recNew=true}
 if(recNew)save();
 document.addEventListener('touchstart',()=>{},{passive:true});
 function toast(t){const el=$('#toast');el.textContent=t;el.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.display='none',2200)}
