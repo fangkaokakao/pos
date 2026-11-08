@@ -424,6 +424,7 @@ const RECIPES={"ชานมไต้หวัน":"ชาแดงร้อน 
 let recNew=false;
 if(!S.settings.mig20261108r){S.settings.mig20261108r=1;if(!S.settings.recipePrep)S.settings.recipePrep=RECIPE_PREP;
   S.menu.forEach(m=>{if(!m.recipe&&RECIPES[m.name])m.recipe=RECIPES[m.name]});recNew=true}
+if(!S.settings.promptpay){S.settings.promptpay='004999253515869';recNew=true}
 function migrate(){
   if(!S.settings.gpRates)S.settings.gpRates={lineman:S.settings.gp??30,grab:30,shopee:30,robinhood:30};
   delete S.settings.gp;
