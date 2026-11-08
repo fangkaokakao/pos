@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#6b3f22">
 <title>POS ร้านชานม</title>
 <link rel="manifest" href="manifest.webmanifest">
-<script>/* หลังบ้าน (?view) ติดตั้งเป็นแอปแยก 8 พ.ย. */if(/[?&]view\b/.test(location.search)){document.querySelector('link[rel=manifest]').href='manifest-view.webmanifest';document.write('<meta name="apple-mobile-web-app-title" content="หลังบ้าน">')}</script>
+<script>function nvManifest(k){try{const b=new URL('./',location.href).href,j={id:b+'view.html',name:'หลังบ้าน Nani Cha',short_name:'หลังบ้าน',start_url:b+'view.html#k='+k,scope:b,display:'standalone',background_color:'#f4efe9',theme_color:'#6b3f22',lang:'th',icons:[{src:b+'icon-192.png',sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:b+'icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}]};document.querySelector('link[rel=manifest]').href=URL.createObjectURL(new Blob([JSON.stringify(j)],{type:'application/manifest+json'}))}catch(e){}}
+/* หลังบ้าน (?view) ติดตั้งเป็นแอปแยก 8 พ.ย. */if(/[?&]view\b/.test(location.search)){document.querySelector('link[rel=manifest]').href='manifest-view.webmanifest';const k=(location.hash.match(/k=([0-9a-z]{6,})/i)||[])[1];if(k)nvManifest(k.toLowerCase());document.write('<meta name="apple-mobile-web-app-title" content="หลังบ้าน">')}</script>
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
