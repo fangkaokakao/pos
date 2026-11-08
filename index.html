@@ -427,6 +427,8 @@ let recNew=false;
 if(!S.settings.mig20261108r){S.settings.mig20261108r=1;if(!S.settings.recipePrep)S.settings.recipePrep=RECIPE_PREP;
   S.menu.forEach(m=>{if(!m.recipe&&RECIPES[m.name])m.recipe=RECIPES[m.name]});recNew=true}
 if(!S.settings.promptpay){S.settings.promptpay='004999253515869';recNew=true}
+// แก้บิล LINE MAN #7763 (8 พ.ย.) แอดมินกดขาดชานมไต้หวัน 1 แก้ว — แก้ครั้งเดียว
+if(!S.settings.mig20261108o7763){S.settings.mig20261108o7763=1;const o=S.orders.find(o=>o.id==='mw7i9pf72vsi');if(o&&o.total===90&&!o.items.some(i=>i.name==='ชานมไต้หวัน')){o.items.push({name:'ชานมไต้หวัน',size:'ปกติ',sweet:100,tops:['ไข่มุก'],note:'',unit:30,qty:1});o.total=120;o.gp=Math.round(120*o.gpRate)/100;o.net=120-o.gp}recNew=true}
 if(!S.settings.mig20261108brw){S.settings.mig20261108brw=1;if(!S.menu.some(m=>m.name==='บราวนี่ชิ้น'))S.menu.push({id:uid(),name:'บราวนี่ชิ้น',cat:'ขนม',price:20,ap:{}});recNew=true}
 if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
 function migrate(){
