@@ -17,8 +17,8 @@ button{margin-top:12px;padding:10px 22px;border:0;border-radius:14px;background:
 // ลิงก์ดูยอดอย่างเดียว: view.html#k=รหัสดูยอด → โหลดยอดจากออนไลน์ แล้วเปิดหน้า POS โหมดดู (?view)
 const SB='https://owbaacymjxehenribbgu.supabase.co/rest/v1/rpc/',SBK='sb_publishable_wdNoCZ3wxXJwT3KQsDVLEg_UT8BfoMF';
 const m=document.getElementById('m');
-// ข้อความภาษาสเปนเป็นค่าเริ่มต้น (แฟนพี่) ถ้าเคยกดเปลี่ยนเป็นไทยจะจำไว้
-let es=true;try{es=localStorage.getItem('nanicha_lang')!=='th'}catch(e){}
+// ค่าเริ่มต้นภาษาไทย (8 พ.ย.) ถ้าเคยกดเลือกสเปนจะจำไว้
+let es=false;try{es=localStorage.getItem('nanicha_lang2')==='es'}catch(e){}
 const L=(th,sp)=>es?sp:th;
 m.textContent=L('กำลังโหลดยอดขาย…','Cargando ventas…');
 // รับรหัสได้ทั้ง #รหัส และ ?k=รหัส (บางแอป เช่น LINE ตัด # หรือต่อท้ายลิงก์)

@@ -1079,10 +1079,10 @@ renderChan();renderMenu();renderCart();renderShiftBtn();
 if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
   const b=document.createElement('button');b.className='shiftbtn';b.textContent='โหลดใหม่'+(S.syncedAt?' · ร้านส่งล่าสุด '+dkey(S.syncedAt).slice(5).split('-').reverse().join('/')+' '+tstr(S.syncedAt):'');
   b.onclick=()=>location.replace('view.html');$('#shiftBtn').after(b);
-  // หลังบ้านภาษาสเปน (แฟนพี่) — ค่าเริ่มต้นสเปน ปุ่ม Español/ภาษาไทย สลับได้ แปลข้อความบนจอหลังวาดเสร็จ
-  let lang='es';try{lang=localStorage.getItem('nanicha_lang')||'es'}catch(e){}
+  // หลังบ้าน: ค่าเริ่มต้นภาษาไทย (8 พ.ย. พี่สั่ง) ปุ่ม Español/ภาษาไทย สลับได้ จำต่อเครื่อง · v2 = ล้างค่าสเปนที่ค้างจากค่าเริ่มต้นเก่า
+  let lang='th';try{lang=localStorage.getItem('nanicha_lang2')||'th'}catch(e){}
   const lb=document.createElement('button');lb.className='shiftbtn';lb.textContent=lang==='es'?'ภาษาไทย':'Español';
-  lb.onclick=()=>{try{localStorage.setItem('nanicha_lang',lang==='es'?'th':'es')}catch(e){}location.reload()};b.after(lb);
+  lb.onclick=()=>{try{const v=lang==='es'?'th':'es';localStorage.setItem('nanicha_lang2',v);localStorage.setItem('nanicha_lang',v)}catch(e){}location.reload()};b.after(lb);
   if(lang==='es'){
     const D={'ออเดอร์วันนี้':'Pedidos del día','สรุปยอด':'Resumen','ถึง':'hasta','วันนี้':'Hoy','เดือนนี้':'Este mes','โหลด Excel (CSV)':'Descargar Excel (CSV)',
       'ยอดขายรวม':'Ventas totales','ร้านได้จริง (หลังหัก GP)':'Neto para la tienda (tras comisión)','ร้านได้จริง':'Neto tienda','เงินสด':'Efectivo','QR พร้อมเพย์':'QR PromptPay',
