@@ -61,7 +61,7 @@ nav [data-p=recipe]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org
 #rcSearch{width:100%;margin-bottom:12px}
 #recTxt,#recPrepEdit{width:100%;min-height:160px;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px}
 /* โหมดดูอย่างเดียว (มือถือแฟน) */
-.view #shiftBtn,.view nav [data-p=sell],.view nav [data-p=settings],.view nav [data-p=recipe],.view [data-pr],.view [data-void],.view #repPrint{display:none!important}
+.view #shiftBtn,.view nav [data-p=sell],.view nav [data-p=settings],.view nav [data-p=recipe],.view [data-pr],.view [data-void],.view [data-pay],.view #repPrint{display:none!important}
 
 /* ขาย */
 #sell{display:none;grid-template-columns:1fr 380px;gap:0;height:100vh;padding:0}
@@ -447,13 +447,15 @@ migrate();
 /* ---------- ส่งยอดขึ้นออนไลน์ ให้ดูทางมือถือได้ (view.html) ---------- */
 const SB='https://owbaacymjxehenribbgu.supabase.co/rest/v1/rpc/',SBK='sb_publishable_wdNoCZ3wxXJwT3KQsDVLEg_UT8BfoMF',PUSHK='57c030938b3d460ba82bcfef61d243e6';
 let syncT=null,syncing=false;
-function syncSoon(ms=3000){if(VIEW)return;clearTimeout(syncT);syncT=setTimeout(syncNow,ms)}
+// ส่งขึ้นหลังบ้านเฉพาะเครื่องที่เปิดจากลิงก์ร้านจริง (8 พ.ย. เทสในเครื่องหลุดขึ้นหลังบ้าน)
+const LIVE=location.hostname==='fangkaokakao.github.io';
+function syncSoon(ms=3000){if(VIEW||!LIVE)return;clearTimeout(syncT);syncT=setTimeout(syncNow,ms)}
 async function syncNow(){
   if(syncing){syncSoon();return}
   if(!navigator.onLine){syncSoon(60000);return}
   syncing=true;const T=Date.now();let last=0;try{last=+localStorage.getItem('nanicha_sync')||0}catch(e){}
   const strip=a=>a.map(({img,...x})=>x);
-  const p={orders:S.orders.filter(o=>o.ts>=last||(o.voidAt||0)>=last),shifts:S.shifts.filter(h=>(h.closeAt||h.openAt)>=last),
+  const p={orders:S.orders.filter(o=>o.ts>=last||(o.voidAt||0)>=last||(o.payFixAt||0)>=last),shifts:S.shifts.filter(h=>(h.closeAt||h.openAt)>=last),
     shift:S.shift||null,settings:{...S.settings,toppings:strip(S.settings.toppings)},menu:strip(S.menu)};
   try{const r=await fetch(SB+'nanicha_push',{method:'POST',headers:{apikey:SBK,'Content-Type':'application/json'},body:JSON.stringify({k:PUSHK,p})});
     if(!r.ok)throw r.status;try{localStorage.setItem('nanicha_sync',T)}catch(e){}}
@@ -593,6 +595,7 @@ let pm='cash';
 $('#payBtn').onclick=()=>{
   const t=cartTotal();
   if(!S.shift){toast('เปิดกะก่อนขายค่ะ');openShift();return}
+  if(staleShift()){toast(`กะวันที่ ${dmy(S.shift.openAt)} (${S.shift.staff}) ยังไม่ปิด ปิดกะก่อนขายค่ะ`);openShift();return}
   const outs=cart.filter(l=>{const m=S.menu.find(x=>x.id===l.menuId);return (m&&m.out)||l.tops.some(t=>(S.settings.toppings.find(x=>x.id===t.id)||{}).out)});
   if(outs.length){toast('มีของหมดในตะกร้า: '+outs.map(l=>l.name).join(', '));return}
   if(channel!=='store'){
@@ -615,6 +618,7 @@ function setPm(v){
   pm=v;$$('[data-pm]').forEach(b=>b.classList.toggle('on',b.dataset.pm===v));
   $('#pmCash').style.display=v==='cash'?'':'none';$('#pmQr').style.display=v==='qr'?'':'none';
   if(v==='qr')drawQr(cartTotal());
+  $('#payOk').textContent=v==='qr'?'เห็นยอดเข้าแอปธนาคารแล้ว ✓':'ยืนยันรับเงิน';
   calcChange();
 }
 let qrOk=false;
@@ -837,10 +841,17 @@ function renderOrders(){
   $('#ordList').innerHTML=list.length?`<table><thead><tr><th>บิล</th><th>เวลา</th><th>รายการ</th><th>จ่าย</th><th class="n">ยอด</th><th></th></tr></thead><tbody>${list.map(o=>`
     <tr class="${o.void?'void':''}"><td>#${String(o.no).padStart(3,'0')}</td><td>${tstr(o.ts)}</td>
     <td>${o.items.map(i=>`${i.qty}× ${esc(i.name)}${i.size?' '+esc(i.size):''}`).join('<br>')}</td>
-    <td>${chTag(o)}${refOf(o)?'<br><small>'+esc(refOf(o))+'</small>':''}${o.void?` <span class="tag void">ยกเลิก</span><br><small>${esc(o.voidReason||'')}</small>`:''}</td>
+    <td>${chTag(o)}${refOf(o)?'<br><small>'+esc(refOf(o))+'</small>':''}${o.payFix&&o.payFix.length?`<br><small style="color:var(--danger)">แก้จาก${o.payFix.map(f=>' '+payName[f.from]+' ('+tstr(f.at)+')').join(',')}</small>`:''}${o.void?` <span class="tag void">ยกเลิก</span><br><small>${esc(o.voidReason||'')}</small>`:''}</td>
     <td class="n">${baht(o.total)}</td>
-    <td class="n" style="white-space:nowrap"><button class="ghost" data-pr="${o.id}">พิมพ์</button> ${o.void?'':`<button class="danger" data-void="${o.id}">ยกเลิก</button>`}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ยังไม่มีออเดอร์วันนี้</div>';
+    <td class="n" style="white-space:nowrap"><button class="ghost" data-pr="${o.id}">พิมพ์</button> ${!o.void&&(o.pay==='cash'||o.pay==='qr')?`<button class="ghost" data-pay="${o.id}">เปลี่ยนเป็น${o.pay==='cash'?'โอน QR':'เงินสด'}</button> `:''}${o.void?'':`<button class="danger" data-void="${o.id}">ยกเลิก</button>`}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">ยังไม่มีออเดอร์วันนี้</div>';
   $$('[data-pr]').forEach(b=>b.onclick=()=>printReceipt(S.orders.find(o=>o.id===b.dataset.pr)));
+  $$('[data-pay]').forEach(b=>b.onclick=()=>{
+    const o=S.orders.find(x=>x.id===b.dataset.pay),to=o.pay==='cash'?'qr':'cash';
+    if(!confirm(`บิล #${String(o.no).padStart(3,'0')} ${baht(o.total)}\nเปลี่ยนจาก ${payName[o.pay]} เป็น ${payName[to]} ใช่ไหม?`))return;
+    const at=Date.now();o.payFix=[...(o.payFix||[]),{from:o.pay,at}];o.payFixAt=at;o.pay=to;
+    if(to==='cash'){o.received=o.total;o.change=0}else{delete o.received;delete o.change}
+    save();renderOrders();renderShiftBtn();toast('เปลี่ยนวิธีจ่ายแล้ว');
+  });
   $$('[data-void]').forEach(b=>b.onclick=()=>{
     const o=S.orders.find(x=>x.id===b.dataset.void);
     const why=prompt(`ยกเลิกบิล #${String(o.no).padStart(3,'0')} ${baht(o.total)}\nเหตุผล (เช่น ลูกค้ายกเลิก / กดผิด / ทำผิดเมนู)`);
@@ -874,8 +885,13 @@ const shiftSum=sh=>{
 };
 function renderShiftBtn(){
   const b=$('#shiftBtn');b.classList.toggle('off',!S.shift);
-  b.textContent=S.shift?'กะ: '+S.shift.staff:'เปิดกะ';
+  b.textContent=S.shift?`กะ: ${S.shift.staff} · ${dmy(S.shift.openAt)} ${tstr(S.shift.openAt)}`:'เปิดกะ';
+  b.style.background=staleShift()?'var(--danger)':'';b.style.color=staleShift()?'#fff':'';
 }
+const dmy=ts=>dkey(ts).slice(5).split('-').reverse().join('/');
+const staleShift=()=>!!S.shift&&dkey(S.shift.openAt)!==dkey(Date.now());
+const shiftQr=sh=>shiftOrders(sh).filter(o=>o.pay==='qr');
+const qrBlock=sh=>{const l=shiftQr(sh),t=l.reduce((a,o)=>a+o.total,0);return `<div class="kv"><span>เงินโอน QR ${l.length} บิล <small style="color:var(--muted)">(เทียบกับแอปธนาคาร)</small></span><b>${baht(t)}</b></div>${l.length?'<div style="font-size:13px;color:var(--muted);padding:0 0 6px">'+l.map(o=>`#${String(o.no).padStart(3,'0')} ${tstr(o.ts)} ${baht(o.total)}`).join(' · ')+'</div>':''}`};
 $('#shiftBtn').onclick=()=>openShift();
 const DENOMS=[1,5,10,20,50,100,500,1000];
 const cntRead=()=>{const c={};$$('#shBody [data-dn]').forEach(i=>{const n=Math.max(0,Math.floor(+i.value||0));if(n)c[i.dataset.dn]=n});return c};
@@ -905,6 +921,7 @@ function openShift(keep){
     const s=shiftSum(sh),m=mix(shiftOrders(sh)),cups=m.cups,hasSeal=sh.sealOpen!=null;
     box.innerHTML=`<h2>ปิดกะ · ${esc(sh.staff)} <small style="font-weight:400;color:var(--muted)">เปิด ${tstr(sh.openAt)}</small></h2>
       <div class="sold">ขายไปแล้ว: ${mixLine(m)}</div>
+      ${qrBlock(sh)}
       <div class="step">① นับเงินในลิ้นชัก <small>ใส่จำนวนเหรียญ/แบงก์ ระบบรวมให้</small></div>
       <div class="cnt">${DENOMS.map(d=>`<div><span>${d} บาท ×</span><input data-dn="${d}" type="number" inputmode="numeric" min="0" placeholder="0"></div>`).join('')}</div>
       <div class="cntTot"><span id="shCntTot">นับได้ ฿0</span> <small style="color:var(--muted);font-weight:400">· ควรมี ${baht(s.expected)}</small></div>
@@ -947,10 +964,11 @@ function openShift(keep){
       const seal=hasSeal?{sealClose:+$('#shSealEnd').value,sealUsed:(+$('#shSealEnd').value)-sh.sealOpen,cups}:{cups};
       const warn=[d!==0?`เงิน${d>0?'เกิน':'ขาด'} ${baht(Math.abs(d))}`:'',hasSeal&&seal.sealUsed!==cups?sealTxt(seal.sealUsed,cups):''].filter(Boolean);
       if(warn.length&&!confirm(warn.join('\n')+'\n\nยืนยันปิดกะ?'))return;
-      S.shifts.push({...sh,...seal,snack:m.snack,snackAmt:m.snackAmt,topQty:m.topQty,topAmt:m.topAmt,closeAt:Date.now(),cashSales:s.cash,in:s.inn,out:s.out,expected:s.expected,counted:c,countedCount:cnt,diff:d});
+      const qrList=shiftQr(sh);S.shifts.push({...sh,...seal,qrSales:qrList.reduce((a,o)=>a+o.total,0),qrBills:qrList.length,snack:m.snack,snackAmt:m.snackAmt,topQty:m.topQty,topAmt:m.topAmt,closeAt:Date.now(),cashSales:s.cash,in:s.inn,out:s.out,expected:s.expected,counted:c,countedCount:cnt,diff:d});
       S.shift=null;save();downloadBackup();renderShiftBtn();
       box.innerHTML=`<h2>ปิดกะแล้ว ✓</h2>
         <div class="kv"><span>ขายไปแล้ว</span><b></b></div><div class="sold" style="margin-top:0">${mixLine(m)}</div>
+        ${qrBlock(sh)}
         <div class="kv"><span>ควรมีในลิ้นชัก</span><b>${baht(s.expected)}</b></div>
         <div class="kv"><span>นับได้</span><b>${baht(c)}</b></div>
         <div class="kv" style="font-size:18px"><span>ผลนับเงิน</span><b style="color:${d<0?'var(--danger)':'var(--ok)'}">${d===0?'ตรงพอดี':d>0?'เกิน '+baht(d):'ขาด '+baht(-d)}</b></div>
