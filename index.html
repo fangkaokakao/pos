@@ -26,7 +26,7 @@ button{touch-action:manipulation}
 button img{pointer-events:none;-webkit-user-drag:none}
 /* จอสัมผัส (แท็บเล็ต/มือถือ): ตัดเงาฟุ้ง ใช้เส้นขอบบางแทน เลื่อนลื่นขึ้นบนเครื่องสเปกต่ำ */
 @media (pointer:coarse){.item,.cats button,.card,.box{box-shadow:none;outline:1px solid #eee3d8;outline-offset:-1px}.item{contain:content}.menuside,.lines{overscroll-behavior:contain}}
-button:active{opacity:.7}
+button:active{opacity:.6;transform:scale(.97)}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font-family:"Prompt","Sarabun",-apple-system,system-ui,sans-serif;font-size:15px;padding-left:var(--rail)}
 button{font:inherit;color:inherit;cursor:pointer;border:0;border-radius:12px;background:none}
@@ -89,6 +89,9 @@ nav [data-p=recipe]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org
 .item.out .pr{color:var(--danger)}
 .cats .outbtn{background:#fff3cd;color:#8a6410;margin-left:auto}
 .cats .outbtn.on{background:#e0b84c;color:#2a1c13}
+.cnt{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:6px 10px;margin:4px 0 6px}
+.cnt div{display:flex;align-items:center;gap:6px}.cnt span{flex:0 0 84px;font-weight:600;white-space:nowrap}.cnt input{width:100%;min-width:0}
+.cntTot{font-size:17px;font-weight:700;color:var(--brand);margin:2px 0 6px}
 .kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line)}
 .scroll{overflow-x:auto}
 .lines{flex:1;overflow:auto;padding:0 20px}
@@ -451,6 +454,7 @@ const save=()=>{if(VIEW)return true;try{localStorage.setItem(KEY,JSON.stringify(
   if(S.shift&&S.shift.openAt<T0)S.shift=null;
   if(S.orders.length+S.shifts.length+(S.shift?1:0)<n){save();try{localStorage.removeItem('milktea_cart')}catch(e){}}}
 if(recNew)save();
+document.addEventListener('touchstart',()=>{},{passive:true});
 function toast(t){const el=$('#toast');el.textContent=t;el.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.display='none',2200)}
 
 /* ---------- หน้า ---------- */
@@ -669,7 +673,7 @@ function printReceipt(o,kick){
   <div class="r"><span>${payOf(o)}</span><span>${o.pay==='cash'?baht(o.received):''}</span></div>
   ${o.pay==='cash'&&o.change?`<div class="r"><span>ทอน</span><span>${baht(o.change)}</span></div>`:''}
   <hr><div class="c">${esc(st.footer)}</div><br>`;
-  setTimeout(()=>doPrint(kick),50);
+  requestAnimationFrame(()=>setTimeout(()=>doPrint(kick),(S.settings.printMode||'browser')==='browser'?350:0));
 }
 
 /* ---------- เครื่องพิมพ์ความร้อน 80 มม. (ESC/POS) ---------- */
@@ -837,27 +841,34 @@ function renderShiftBtn(){
   b.textContent=S.shift?'กะ: '+S.shift.staff:'เปิดกะ';
 }
 $('#shiftBtn').onclick=()=>openShift();
+const DENOMS=[1,5,10,20,50,100,500,1000];
+const cntRead=()=>{const c={};$$('#shBody [data-dn]').forEach(i=>{const n=Math.max(0,Math.floor(+i.value||0));if(n)c[i.dataset.dn]=n});return c};
+const cntSum=c=>Object.entries(c||{}).reduce((a,[d,n])=>a+d*n,0);
+const cntLine=c=>c&&Object.keys(c).length?`<div style="font-size:13px;color:var(--muted);padding:2px 0 6px">${DENOMS.filter(d=>c[d]).map(d=>d+'×'+c[d]).join(' · ')}</div>`:'';
 function openShift(){
   const sh=S.shift,box=$('#shBody');
   if(!sh){
     box.innerHTML=`<h2>เปิดกะ</h2>
       <label>ชื่อคนขาย</label><input id="shStaff" value="${esc((S.shifts.at(-1)||{}).staff||'')}">
-      <label>เงินทอนตั้งต้นในลิ้นชัก (บาท)</label><input id="shFloat" type="number" inputmode="numeric" placeholder="เช่น 500">
+      <label>นับเงินทอนในลิ้นชัก (ใส่จำนวนเหรียญ/แบงก์)</label>
+      <div class="cnt">${DENOMS.map(d=>`<div><span>${d} บาท ×</span><input data-dn="${d}" type="number" inputmode="numeric" min="0" placeholder="0"></div>`).join('')}</div>
+      <div class="cntTot" id="shFloatTot">รวม ฿0</div>
       <label>นับฝาซีนตอนเปิดกะ (แผ่น)</label><input id="shSeal" type="number" inputmode="numeric" placeholder="เช่น 300">
       <div class="row" style="margin-top:14px"><button class="ghost" id="shClose" style="flex:0 0 auto">กลับ</button><button class="big" id="shOpen">เปิดกะ</button></div>`;
     $('#shOpen').onclick=()=>{
-      const staff=$('#shStaff').value.trim(),fl=$('#shFloat').value;
+      const staff=$('#shStaff').value.trim(),cnt=cntRead(),fl=cntSum(cnt);
       if(!staff){toast('ใส่ชื่อคนขาย');return}
-      if(fl===''){toast('ใส่เงินทอนตั้งต้น (ไม่มีใส่ 0)');return}
+      if(!fl&&!confirm('เงินทอนตั้งต้น ฿0 ใช่ไหม?'))return;
       const se=$('#shSeal').value;if(se===''){toast('ใส่จำนวนฝาซีนที่นับได้');return}
-      S.shift={id:uid(),staff,float:+fl,sealOpen:+se,openAt:Date.now(),moves:[]};
+      S.shift={id:uid(),staff,float:fl,floatCount:cnt,sealOpen:+se,openAt:Date.now(),moves:[]};
       if(!save()){S.shift=null;return}
       $('#mShift').classList.remove('on');renderShiftBtn();toast('เปิดกะแล้ว');
     };
+    $$('#shBody [data-dn]').forEach(i=>i.oninput=()=>{$('#shFloatTot').textContent='รวม '+baht(cntSum(cntRead()))});
   }else{
     const s=shiftSum(sh);
     box.innerHTML=`<h2>กะ ${esc(sh.staff)} · เปิด ${tstr(sh.openAt)}</h2>
-      <div class="kv"><span>เงินทอนตั้งต้น</span><b>${baht(sh.float)}</b></div>
+      <div class="kv"><span>เงินทอนตั้งต้น</span><b>${baht(sh.float)}</b></div>${cntLine(sh.floatCount)}
       <div class="kv"><span>ขายเงินสด</span><b>${baht(s.cash)}</b></div>
       <div class="kv"><span>เงินเข้าอื่น</span><b>${baht(s.inn)}</b></div>
       <div class="kv"><span>เงินออก</span><b>-${baht(s.out)}</b></div>
