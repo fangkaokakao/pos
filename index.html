@@ -455,6 +455,12 @@ if(!S.settings.mig20261109fix2){S.settings.mig20261109fix2=1;
   const o=S.orders.find(o=>o.id==='mw91vx5u8f7y');if(o&&o.pay==='qr'&&o.total===30){o.pay='cash';o.received=30;o.change=0;delete o.payFix;delete o.payFixAt}
   try{localStorage.setItem('nanicha_sync','0')}catch(e){}
   recNew=true}
+// พี่สั่ง 9 พ.ย. 22:00: บิลวันนี้ให้ดูสะอาด — ซ่อนบิลยกเลิก · ลบตัวแดง "แก้จาก" · เรียงเลขบิลใหม่ 1..N ตามเวลา
+if(!S.settings.mig20261109clean){S.settings.mig20261109clean=1;
+  const T=S.orders.filter(o=>dkey(o.ts)==='2026-11-09').sort((x,y)=>x.ts-y.ts);let n=0;
+  T.forEach(o=>{if(o.void){o.hide=true;return}delete o.payFix;o.no=++n;(o.items||[]).forEach(i=>{if(i.note==='คีย์ย้อนหลัง (ตกหล่น 12:16)')i.note=''})});
+  try{localStorage.setItem('nanicha_sync','0')}catch(e){}
+  recNew=true}
 if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
 function migrate(){
   if(!S.settings.gpRates)S.settings.gpRates={lineman:S.settings.gp??30,grab:30,shopee:30,robinhood:30};
@@ -902,7 +908,7 @@ $('#ordDate').value=dkey(Date.now());
 $('#ordDate').onchange=renderOrders;
 const chTag=o=>{const c=chOf(o.channel);return `<span class="tag" style="${o.channel!=='store'?`background:${c.c};color:#fff`:''}">${payOf(o)}</span>`};
 function renderOrders(){
-  const d=$('#ordDate').value, list=S.orders.filter(o=>dkey(o.ts)===d).reverse();
+  const d=$('#ordDate').value, list=S.orders.filter(o=>!o.hide&&dkey(o.ts)===d).reverse();
   $('#ordList').innerHTML=list.length?`<table><thead><tr><th>บิล</th><th>เวลา</th><th>รายการ</th><th>จ่าย</th><th class="n">ยอด</th><th></th></tr></thead><tbody>${list.map(o=>`
     <tr class="${o.void?'void':''}"><td>#${String(o.no).padStart(3,'0')}</td><td>${tstr(o.ts)}</td>
     <td>${o.items.map(i=>`${i.qty}× ${esc(i.name)}${i.size?' '+esc(i.size):''}`).join('<br>')}</td>
@@ -1066,7 +1072,7 @@ function calc(list){
   return Object.assign(r,mix(list));
 }
 function renderReport(){
-  const r=calc(repOrders()),voids=S.orders.filter(o=>o.void&&inRange(o));
+  const r=calc(repOrders()),voids=S.orders.filter(o=>o.void&&!o.hide&&inRange(o));
   const c=(l,v,cls='')=>`<div class="card ${cls}"><small>${l}</small><b>${v}</b></div>`;
   $('#repCards').innerHTML=c('ยอดขายรวม',baht(r.all))+c('ร้านได้จริง (หลังหัก GP)',baht(r.net))+
     c('เงินสด',baht(r.cash))+c('QR พร้อมเพย์',baht(r.qr))+
@@ -1084,7 +1090,7 @@ function renderReport(){
 $('#repCsv').onclick=()=>{
   const rows=[['วันที่','เวลา','บิล','ช่องทาง','การจ่าย','เลขออเดอร์แอป','รายการ','ยอด','GP %','GP','ร้านได้','สถานะ','เหตุผลยกเลิก']];
   const f=$('#repFrom').value,t=$('#repTo').value;
-  S.orders.filter(inRange).forEach(o=>rows.push([dkey(o.ts),tstr(o.ts),o.no,chOf(o.channel).n,payOf(o),refOf(o),
+  S.orders.filter(o=>!o.hide&&inRange(o)).forEach(o=>rows.push([dkey(o.ts),tstr(o.ts),o.no,chOf(o.channel).n,payOf(o),refOf(o),
     o.items.map(i=>`${i.qty}x ${i.name}${i.size?' '+i.size:''}`).join(' / '),o.total,o.gpRate??'',o.gp||0,o.net??o.total-(o.gp||0),o.void?'ยกเลิก':'',o.voidReason||'']));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${TR(String(v)).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${TR('ยอดขาย')}_${f}_${t}.csv`;a.click();
