@@ -1146,6 +1146,9 @@ renderChan();renderMenu();renderCart();renderShiftBtn();
 if(VIEW){document.body.classList.add('view');$('nav [data-p=report]').click();
   const b=document.createElement('button');b.className='shiftbtn';b.textContent='โหลดใหม่'+(S.syncedAt?' · ร้านส่งล่าสุด '+dkey(S.syncedAt).slice(5).split('-').reverse().join('/')+' '+tstr(S.syncedAt):'');
   b.onclick=()=>location.replace('view.html'+location.hash);$('#shiftBtn').after(b);
+  // กลับเข้าแอปหลังบ้าน (สลับแอป/ล็อกจอ) → โหลดยอดใหม่เอง ไม่ต้องกดปุ่ม (9 พ.ย.)
+  let hidAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hidAt=Date.now();else if(hidAt&&Date.now()-hidAt>15000)location.replace('view.html'+location.hash)});
+  addEventListener('pageshow',e=>{if(e.persisted)location.replace('view.html'+location.hash)});
   // หลังบ้าน: ค่าเริ่มต้นภาษาไทย (8 พ.ย. พี่สั่ง) ปุ่ม Español/ภาษาไทย สลับได้ จำต่อเครื่อง · v2 = ล้างค่าสเปนที่ค้างจากค่าเริ่มต้นเก่า
   let lang='th';try{lang=localStorage.getItem('nanicha_lang2')||'th'}catch(e){}
   const lb=document.createElement('button');lb.className='shiftbtn';lb.textContent=lang==='es'?'ภาษาไทย':'Español';
