@@ -392,7 +392,7 @@ function sample(){
       ...g('ชาเขียวไต้หวัน',[['ชาเขียวมะลิไต้หวัน',20],['ชาเขียวสตรอเบอรี่',20],['ชาเขียวลิ้นจี่',20],['ชาเขียวองุ่น',20],['ชาเขียวเสาวรส',20],['ชาเขียวแอปเปิ้ล',20],['ชาเขียวกีวี่',20],['ชาเขียวส้ม',20],['ชาเขียวแคนตาลูป',20],['ชาเขียวพันซ์',20]]),
       ...g('ชาเขียวไทย',[['ชาเขียวนมสด',20],['ชาเขียวไทยมะนาว',20],['ชาเขียวไทยองุ่น',20],['ชาเขียวไทยเสาวรส',20],['ชาเขียวไทยแอปเปิ้ล',20],['ชาเขียวไทยกีวี่',20],['ชาเขียวไทยสตรอเบอรี่',20],['ชาเขียวไทยลิ้นจี่',20]]),
       ...g('ชาไทย',[['ชาไทย',20],['ชาดำเย็น',20],['ชาไทยมะนาว',20],['ชาไทยเสาวรส',20],['ชาไทยแอปเปิ้ล',20],['ชาไทยกีวี่',20],['ชาไทยสตรอเบอรี่',20],['ชาไทยลิ้นจี่',20]]),
-      ...g('อิตาเลี่ยนโซดา',[['มะนาวโซดา',20],['องุ่นโซดา',20],['เสาวรสโซดา',20],['แอปเปิ้ลโซดา',20],['กีวี่โซดา',20],['สตรอเบอรี่โซดา',20],['ลิ้นจี่โซดา',20],['แคนตาลูปโซดา',20],['พันซ์โซดา',20],['บลูฮาวายโซดา',20]]),
+      ...g('อิตาเลี่ยนโซดา',[['มะนาวโซดา',20],['องุ่นโซดา',20],['เสาวรสโซดา',25],['แอปเปิ้ลโซดา',20],['กีวี่โซดา',20],['สตรอเบอรี่โซดา',20],['ลิ้นจี่โซดา',20],['แคนตาลูปโซดา',20],['พันซ์โซดา',20],['บลูฮาวายโซดา',20]]),
       ...g('นมสด',[['นมสด',25],['นมชมพู',25],['นมสดแคนตาลูป',30],['นมสดคาปูชิโน่',30],['นมสดเผือก',30],['นมสดโกโก้',30],['นมสดช็อคโกแลต',30],['นมสดสตรอเบอรี่',30],['นมสดกล้วย',30]]),
       ...g('บราวน์ชูก้า',[['นมสดบราวน์ชูก้า',25],['ชานมบราวน์ชูก้า',25],['ชาไทยบราวน์ชูก้า',25],['ชาเขียวนมสดบราวน์ชูก้า',25]]),
       ...g('กาแฟและโกโก้',[['อเมริกาโน่',25],['เอสเปรสโซ่',30],['คาปูชิโน่',30],['มอคค่า',30],['ลาเต้',30],['โกโก้เย็น',30],['ช็อคโกแลต',30],['โอวัลติน',30]]),
@@ -436,7 +436,20 @@ if(!S.settings.promptpay){S.settings.promptpay='004999253515869';recNew=true}
 if(!S.settings.mig20261108whip){S.settings.mig20261108whip=1;if(!S.settings.toppings.some(t=>t.name==='วิปครีม'))S.settings.toppings.push({id:uid(),name:'วิปครีม',price:10});recNew=true}
 if(!S.settings.mig20261108o7763){S.settings.mig20261108o7763=1;const o=S.orders.find(o=>o.id==='mw7i9pf72vsi');if(o&&o.total===90&&!o.items.some(i=>i.name==='ชานมไต้หวัน')){o.items.push({name:'ชานมไต้หวัน',size:'ปกติ',sweet:100,tops:['ไข่มุก'],note:'',unit:30,qty:1});o.total=120;o.gp=Math.round(120*o.gpRate)/100;o.net=120-o.gp}recNew=true}
 if(!S.settings.mig20261108brw){S.settings.mig20261108brw=1;if(!S.menu.some(m=>m.name==='บราวนี่ชิ้น'))S.menu.push({id:uid(),name:'บราวนี่ชิ้น',cat:'ขนม',price:20,ap:{}});recNew=true}
-if(!S.settings.mig20261109it20){S.settings.mig20261109it20=1;const IT20=["มะนาวโซดา", "องุ่นโซดา", "เสาวรสโซดา", "แอปเปิ้ลโซดา", "กีวี่โซดา", "สตรอเบอรี่โซดา", "ลิ้นจี่โซดา", "แคนตาลูปโซดา", "พันซ์โซดา", "บลูฮาวายโซดา"];S.menu.forEach(m=>{if(IT20.includes(m.name)&&m.price===25)m.price=20});recNew=true} if(!S.settings.mig20261109soda){S.settings.mig20261109soda=1;[['แดงมะนาวโซดา',25],['น้ำผึ้งมะนาวแดงโซดา',25]].forEach(([n,pr])=>{if(!S.menu.some(m=>m.name===n)){const i=S.menu.map(m=>m.cat).lastIndexOf('อิตาเลี่ยนโซดา');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:n,cat:'อิตาเลี่ยนโซดา',price:pr,ap:{}})}});recNew=true}
+if(!S.settings.mig20261109it20){S.settings.mig20261109it20=1;const IT20=["มะนาวโซดา", "องุ่นโซดา", "แอปเปิ้ลโซดา", "กีวี่โซดา", "สตรอเบอรี่โซดา", "ลิ้นจี่โซดา", "แคนตาลูปโซดา", "พันซ์โซดา", "บลูฮาวายโซดา"];S.menu.forEach(m=>{if(IT20.includes(m.name)&&m.price===25)m.price=20});recNew=true} if(!S.settings.mig20261109soda){S.settings.mig20261109soda=1;[['แดงมะนาวโซดา',25],['น้ำผึ้งมะนาวแดงโซดา',25]].forEach(([n,pr])=>{if(!S.menu.some(m=>m.name===n)){const i=S.menu.map(m=>m.cat).lastIndexOf('อิตาเลี่ยนโซดา');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:n,cat:'อิตาเลี่ยนโซดา',price:pr,ap:{}})}});recNew=true}
+// แก้บิล 9 พ.ย. ตามพี่สั่ง: #1 บิลทดสอบ · #21 รวมเข้า #11 (ชาดำเย็น 3) · #13 #14 เป็นโอน · #19 เสาวรสโซดา 25 · เพิ่มชานมสตรอเบอรี่ 2 แก้ว 12:16 (โอน) · เสาวรสโซดา 25
+if(!S.settings.mig20261109fix){S.settings.mig20261109fix=1;const F=id=>S.orders.find(o=>o.id===id),at=Date.now();
+  const vd=(id,r)=>{const o=F(id);if(o&&!o.void){o.void=true;o.voidAt=at;o.voidReason=r}};
+  vd('mw8pess75oym','บิลทดสอบ (พี่สั่ง 9 พ.ย.)');
+  {const a=F('mw8roipy1q60'),b=F('mw91svfkpfrh');if(a&&b&&!b.void&&a.total===40&&a.items.length===1&&a.items[0].qty===2){a.items[0].qty=3;a.total=a.net=60;if(a.pay==='cash'&&a.received>=60)a.change=a.received-60;vd(b.id,'รวมเข้าบิล #011 (พี่สั่ง 9 พ.ย.)')}}
+  ['mw8vhtlnvzmq','mw8vwrj5iqx1'].forEach(id=>{const o=F(id);if(o&&o.pay==='cash'&&!o.payFix){o.payFix=[{from:'cash',at}];o.payFixAt=at;o.pay='qr';delete o.received;delete o.change}});
+  {const o=F('mw90s38w5tyk');if(o&&o.total===20&&o.items[0]&&o.items[0].name==='เสาวรสโซดา'){o.items[0].unit=25;o.total=o.net=25;if(o.pay==='cash'){o.received=25;o.change=0}}}
+  if(!F('mw8add1216sb')&&S.orders.some(o=>o.id==='mw8roipy1q60'))S.orders.push({id:'mw8add1216sb',no:S.orders.filter(o=>dkey(o.ts)===dkey(1794201360000)).length+1,ts:1794201360000,pay:'qr',channel:'store',shiftId:'mw8pdxqr1s9p',gp:0,total:50,net:50,
+    items:[{tp:[],cat:'ชานมไต้หวัน',qty:2,name:'ชานมสตรอเบอรี่',note:'คีย์ย้อนหลัง (ตกหล่น 12:16)',size:'ปกติ',tops:[],unit:25,sweet:100}]});
+  S.orders.sort((x,y)=>x.ts-y.ts);
+  S.menu.forEach(m=>{if(m.name==='เสาวรสโซดา'&&m.price===20)m.price=25});
+  try{localStorage.setItem('nanicha_sync','0')}catch(e){}  // ส่งบิลทั้งหมดขึ้นหลังบ้านใหม่ ให้ตรงกับเครื่อง
+  recNew=true}
 if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
 function migrate(){
   if(!S.settings.gpRates)S.settings.gpRates={lineman:S.settings.gp??30,grab:30,shopee:30,robinhood:30};
