@@ -450,6 +450,11 @@ if(!S.settings.mig20261109fix){S.settings.mig20261109fix=1;const F=id=>S.orders.
   S.menu.forEach(m=>{if(m.name==='เสาวรสโซดา'&&m.price===20)m.price=25});
   try{localStorage.setItem('nanicha_sync','0')}catch(e){}  // ส่งบิลทั้งหมดขึ้นหลังบ้านใหม่ ให้ตรงกับเครื่อง
   recNew=true}
+// พี่เช็กยอดโอน 9 พ.ย.: #022 16:20 โกโก้เย็น 30 ไม่มีโอนเข้า → กลับเป็นเงินสด
+if(!S.settings.mig20261109fix2){S.settings.mig20261109fix2=1;
+  const o=S.orders.find(o=>o.id==='mw91vx5u8f7y');if(o&&o.pay==='qr'&&o.total===30){o.pay='cash';o.received=30;o.change=0;delete o.payFix;delete o.payFixAt}
+  try{localStorage.setItem('nanicha_sync','0')}catch(e){}
+  recNew=true}
 if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
 function migrate(){
   if(!S.settings.gpRates)S.settings.gpRates={lineman:S.settings.gp??30,grab:30,shopee:30,robinhood:30};
