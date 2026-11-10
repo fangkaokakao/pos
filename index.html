@@ -471,6 +471,10 @@ if(!S.settings.mig20261110rec2){S.settings.mig20261110rec2=1;const R2={"นม�
   S.menu.forEach(m=>{if(R2[m.name])m.recipe=R2[m.name]});
   try{localStorage.setItem('nanicha_sync','0')}catch(e){}
   recNew=true}
+if(!S.settings.mig20261110rec3){S.settings.mig20261110rec3=1;const R3={"แดงมะนาวโซดา": "น้ำเชื่อม ครึ่งแก้วเป๊ก\nน้ำมะนาว 1/4 แก้วเป๊ก\nน้ำแดง ครึ่งแก้วเป๊ก\nโซดาเต็มแก้ว", "น้ำผึ้งมะนาวแดงโซดา": "น้ำเชื่อม ครึ่งแก้วเป๊ก\nน้ำผึ้งมะนาวไซรัป ครึ่งแก้วเป๊ก\nน้ำแดง ครึ่งแก้วเป๊ก\nโซดาเต็มแก้ว"};
+  S.menu.forEach(m=>{if(R3[m.name])m.recipe=R3[m.name]});
+  try{localStorage.setItem('nanicha_sync','0')}catch(e){}
+  recNew=true}
 if(!S.settings.mig20261110lm){S.settings.mig20261110lm=1;
   const o=S.orders.find(o=>o.id==='mwacsbpczyjv');
   if(o&&o.channel==='store'&&o.total===20){o.channel='lineman';o.pay='app';o.ref='#6882';o.ts=1794294300000;o.items[0].unit=30;o.total=30;o.gpRate=32.1;o.gp=9.63;o.net=20.37;delete o.received;delete o.change;delete o.payFix;delete o.payFixAt;
