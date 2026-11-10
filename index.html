@@ -464,7 +464,11 @@ if(!S.settings.mig20261109clean){S.settings.mig20261109clean=1;
 // พี่สั่ง 10 พ.ย.: บิล #10 ชานมไต้หวัน เป็น LINE MAN #6882 เวลา 14:05 (เดิมคีย์เป็นหน้าร้าน QR 14:13) · เรียงเลขบิลวันนี้ใหม่ตามเวลา
 // พี่สั่ง 10 พ.ย.: ใส่สูตรจริงจากกระดาษสูตรร้าน (6 รูป) แทนสูตรเดาเดิม · เมนูที่ไม่มีในกระดาษ = ยังไม่มีสูตร
 if(!S.settings.mig20261110rec){S.settings.mig20261110rec=1;S.settings.recipePrep=RECIPE_PREP;
-  S.menu.forEach(m=>{if(RECIPES[m.name])m.recipe=RECIPES[m.name];else if(["นมสด", "นมสดบราวน์ชูก้า"].includes(m.name))delete m.recipe});
+  S.menu.forEach(m=>{if(RECIPES[m.name])m.recipe=RECIPES[m.name];});
+  try{localStorage.setItem('nanicha_sync','0')}catch(e){}
+  recNew=true}
+if(!S.settings.mig20261110rec2){S.settings.mig20261110rec2=1;const R2={"นมสด": "ครีมเทียม 2 ช้อน\nน้ำตาลทรายแดง 2 ช้อน\nนมข้น 1 ช้อนยาว\nน้ำร้อน 100 ML\nนมคาเนชั่น 10 ML\nนมจืด 10 ML", "นมสดบราวน์ชูก้า": "ใส่บราวน์ชูก้ารอบแก้ว\nครีมเทียม 2 ช้อน\nน้ำตาลทรายแดง 2 ช้อน\nนมข้น 1 ช้อนยาว\nน้ำร้อน 100 ML\nนมคาเนชั่น 10 ML\nนมจืด 10 ML", "นมชมพู": "ครีมเทียม 2 ช้อน\nน้ำตาลทราย 1 ช้อน\nน้ำเชื่อม 1 ช้อนยาว\nน้ำร้อน 80 ML\nตีให้เข้ากัน\nเฮลบลูบอยแดง ครึ่งแก้วเป๊ก"};
+  S.menu.forEach(m=>{if(R2[m.name])m.recipe=R2[m.name]});
   try{localStorage.setItem('nanicha_sync','0')}catch(e){}
   recNew=true}
 if(!S.settings.mig20261110lm){S.settings.mig20261110lm=1;
