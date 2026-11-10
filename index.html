@@ -461,6 +461,13 @@ if(!S.settings.mig20261109clean){S.settings.mig20261109clean=1;
   T.forEach(o=>{if(o.void){o.hide=true;return}delete o.payFix;o.no=++n;(o.items||[]).forEach(i=>{if(i.note==='คีย์ย้อนหลัง (ตกหล่น 12:16)')i.note=''})});
   try{localStorage.setItem('nanicha_sync','0')}catch(e){}
   recNew=true}
+// พี่สั่ง 10 พ.ย.: บิล #10 ชานมไต้หวัน เป็น LINE MAN #6882 เวลา 14:05 (เดิมคีย์เป็นหน้าร้าน QR 14:13) · เรียงเลขบิลวันนี้ใหม่ตามเวลา
+if(!S.settings.mig20261110lm){S.settings.mig20261110lm=1;
+  const o=S.orders.find(o=>o.id==='mwacsbpczyjv');
+  if(o&&o.channel==='store'&&o.total===20){o.channel='lineman';o.pay='app';o.ref='#6882';o.ts=1794294300000;o.items[0].unit=30;o.total=30;o.gpRate=32.1;o.gp=9.63;o.net=20.37;delete o.received;delete o.change;delete o.payFix;delete o.payFixAt;
+    S.orders.sort((x,y)=>x.ts-y.ts);let n=0;S.orders.filter(x=>dkey(x.ts)==='2026-11-10').forEach(x=>{if(!x.hide&&!x.void)x.no=++n})}
+  try{localStorage.setItem('nanicha_sync','0')}catch(e){}
+  recNew=true}
 if(!S.settings.mig20261108pink){S.settings.mig20261108pink=1;if(!S.menu.some(m=>m.name==='นมชมพู')){const i=S.menu.findIndex(m=>m.name==='นมสด');S.menu.splice(i<0?S.menu.length:i+1,0,{id:uid(),name:'นมชมพู',cat:'นมสด',price:25,ap:{}})}recNew=true}
 function migrate(){
   if(!S.settings.gpRates)S.settings.gpRates={lineman:S.settings.gp??30,grab:30,shopee:30,robinhood:30};
